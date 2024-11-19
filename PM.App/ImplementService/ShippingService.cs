@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using PM.Application.Handle.HandleEmail;
 using PM.Application.InterfaceService;
 using PM.Application.Payloads.RequestModels.ShippingRequests;
 using PM.Application.Payloads.ResponseModels.DataProjects;
@@ -26,6 +27,8 @@ namespace PM.Application.ImplementService
         private readonly IBaseRepository<Delivery> _deliveryRepository;
         private readonly IBaseRepository<ShippingMethod> _shippingMethodRepository;
         private readonly INotificationService _notificationService;
+        private readonly IEmailService _emailService;
+        private readonly IBaseRepository<ConfirmEmail> _baseConfirmEmailRepository;
         public ShippingService(
             IBaseRepository<Project> projectRepository,
             IUserRepository userRepository,
@@ -36,7 +39,9 @@ namespace PM.Application.ImplementService
             IBaseRepository<ShippingMethod> shippingMethodRepository,
             INotificationService notificationService,
             IBaseRepository<User> userBaseRepository,
-            IBaseRepository<Team> teamRepository
+            IBaseRepository<Team> teamRepository,
+            IEmailService emailService,
+            IBaseRepository<ConfirmEmail> baseConfirmEmailRepository
             )
         {
             _projectRepository = projectRepository;
@@ -49,6 +54,8 @@ namespace PM.Application.ImplementService
             _customerRepository = customerRepository;
             _userBaseRepository = userBaseRepository;
             _teamRepository = teamRepository;
+            _emailService = emailService;
+            _baseConfirmEmailRepository = baseConfirmEmailRepository;
         }
 
         public async Task<ResponseObject<DataResponseDelivery>> CreateDeliveryAsync(Request_CreateDelivery request)
@@ -268,7 +275,20 @@ namespace PM.Application.ImplementService
                     await _notificationRepository.CreateAsync(notification);
                     await _notificationService.SendNotificationAsync(projectLeader.Id, notification.Content);
                     await _notificationService.SendNotificationAsync(shippingLeader.Id, notification.Content);
-                    await _notificationService.SendNotificationAsync(customer.Id, notification.Content);
+
+                    ConfirmEmail confirmEmail = new ConfirmEmail
+                    {
+                        IsActive = true,
+                        ConfirmCode = "Product is delivered successfully.",
+                        ExpiryTime = DateTime.Now.AddMinutes(1),
+                        IsConfirmed = false,
+                        UserId = customer.Id,
+                    };
+
+                    var Receiver = await _customerRepository.GetByIdAsync(customer.Id);
+                    confirmEmail = await _baseConfirmEmailRepository.CreateAsync(confirmEmail);
+                    var message = new EmailMessage(new string[] { Receiver.Email }, "Notification: ", $"{confirmEmail.ConfirmCode}");
+                    var responseMessage = _emailService.SendEmail(message);
 
                     return new ResponseObject<DataResponseDelivery>
                     {

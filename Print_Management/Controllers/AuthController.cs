@@ -34,6 +34,18 @@ namespace Print_Management.Controllers
             return Ok(await _authService.Login(request));
         }
 
+        [HttpGet("userinfo")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var result = await _authService.GetUserInfoAsync();
+            if (result.Status != StatusCodes.Status200OK)
+            {
+                return StatusCode(result.Status, result.Message);
+            }
+            return Ok(result.Data);
+        }
+
         [HttpPut]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> ChangePassword([FromBody] Request_ChangePassword request)

@@ -18,5 +18,7 @@ namespace PM.Application.Payloads.ResponseModels.DataUsers
         public DateTime? UpdateTime { get; set; }
         public string? PhoneNumber { get; set; }
         public long? TeamId { get; set; }
+
+        public List<string> Roles { get; set; }
     }
 }

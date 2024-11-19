@@ -198,6 +198,74 @@ namespace PM.Application.ImplementService
         }
 
 
+        public async Task<ResponseObject<DataResponseUser>> GetUserInfoAsync()
+        {
+            try
+            {
+                var currentUser = _contextAccessor.HttpContext.User;
+                if (currentUser == null || !currentUser.Identity.IsAuthenticated)
+                {
+                    return new ResponseObject<DataResponseUser>
+                    {
+                        Status = StatusCodes.Status401Unauthorized,
+                        Message = "User is not authenticated.",
+                        Data = null
+                    };
+                }
+
+                var userIdClaim = currentUser.FindFirst("Id")?.Value;
+                if (!long.TryParse(userIdClaim, out long userId))
+                {
+                    return new ResponseObject<DataResponseUser>
+                    {
+                        Status = StatusCodes.Status400BadRequest,
+                        Message = "Invalid user ID in token.",
+                        Data = null
+                    };
+                }
+
+                var user = await _baseUserRepository.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    return new ResponseObject<DataResponseUser>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "User not found.",
+                        Data = null
+                    };
+                }
+
+                var userRoles = await _userRepository.GetRolesOfUserAsync(user);
+
+                var responseData = new DataResponseUser
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    Roles = userRoles.ToList()
+                };
+
+                return new ResponseObject<DataResponseUser>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "User information retrieved successfully.",
+                    Data = responseData
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponseUser>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+
         public async Task<ResponseObject<DataResponseUser>> Register(Request_Register request)
         {
             try
@@ -298,7 +366,7 @@ namespace PM.Application.ImplementService
 
         private string GenerateCodeActive()
         {
-            string str = "QuocHung_" + DateTime.Now.Ticks.ToString();
+            string str = "QH_" + DateTime.Now.Ticks.ToString();
             return str;
         }
 
