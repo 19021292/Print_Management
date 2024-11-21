@@ -21,6 +21,7 @@ using System.Security.Claims;
 using Org.BouncyCastle.Pqc.Crypto.Crystals.Dilithium;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore;
 
 namespace PM.Application.ImplementService
 {
@@ -401,6 +402,78 @@ namespace PM.Application.ImplementService
         {
             throw new NotImplementedException();
         }
+
+        public async Task<ResponseObject<List<DataResponseUser>>> GetAllUsersAsync()
+        {
+            try
+            {
+                var currentUser = _contextAccessor.HttpContext.User;
+
+                if (currentUser == null || !currentUser.Identity.IsAuthenticated)
+                {
+                    return new ResponseObject<List<DataResponseUser>>
+                    {
+                        Status = StatusCodes.Status401Unauthorized,
+                        Message = "User is not authenticated.",
+                        Data = null
+                    };
+                }
+
+                if (!currentUser.IsInRole("Admin"))
+                {
+                    return new ResponseObject<List<DataResponseUser>>
+                    {
+                        Status = StatusCodes.Status403Forbidden,
+                        Message = "Only administrators can access this resource.",
+                        Data = null
+                    };
+                }
+
+                var users = await _baseUserRepository.GetAllAsync();
+                if (users == null || !users.Any())
+                {
+                    return new ResponseObject<List<DataResponseUser>>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "No users found.",
+                        Data = null
+                    };
+                }
+
+                var responseData = new List<DataResponseUser>();
+                foreach (var user in users)
+                {
+                    var roles = await _userRepository.GetRolesOfUserAsync(user);
+                    responseData.Add(new DataResponseUser
+                    {
+                        Id = user.Id,
+                        FullName = user.FullName,
+                        UserName = user.UserName,
+                        Email = user.Email,
+                        PhoneNumber = user.PhoneNumber,
+                        Roles = roles.ToList()
+                    });
+                }
+
+                return new ResponseObject<List<DataResponseUser>>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Users retrieved successfully.",
+                    Data = responseData
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<List<DataResponseUser>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+
 
         public async Task<ResponseObject<DataResponseUser>> ChangePassword(long userId, Request_ChangePassword request)
         {

@@ -261,7 +261,8 @@ namespace PM.Application.ImplementService
                     NumberOfMember = team.NumberOfMember,
                     CreateTime = team.CreateTime,
                     UpdateTime = team.UpdateTime,
-                    ManagerId = team.ManagerId
+                    ManagerId = team.ManagerId,
+                    Id = team.Id,
                 });
 
                 return new ResponseObject<IEnumerable<DataResponseTeam>>

@@ -34,11 +34,25 @@ namespace Print_Management.Controllers
             return Ok(await _authService.Login(request));
         }
 
+
         [HttpGet("userinfo")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetUserInfo()
         {
             var result = await _authService.GetUserInfoAsync();
+            if (result.Status != StatusCodes.Status200OK)
+            {
+                return StatusCode(result.Status, result.Message);
+            }
+            return Ok(result.Data);
+        }
+
+        [HttpGet("all-users")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var result = await _authService.GetAllUsersAsync();
+
             if (result.Status != StatusCodes.Status200OK)
             {
                 return StatusCode(result.Status, result.Message);
