@@ -27,7 +27,7 @@ namespace Print_Management.Controllers
             _shippingService = shippingService;
         }
 
-        [HttpPost("Create delivery")]
+        [HttpPost("CreateDelivery")]
         [Authorize]
         public async Task<IActionResult> CreateDeliveryAsync([FromBody] Request_CreateDelivery request)
         {
@@ -41,7 +41,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Update delivery-status")]
+        [HttpPost("UpdateDelivery-status")]
         [Authorize]
         public async Task<IActionResult> DeliveryStatusUpdate(long deliveryId)
         {

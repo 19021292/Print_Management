@@ -27,7 +27,7 @@ namespace Print_Management.Controllers
 
         }
 
-        [HttpPost("Create project")]
+        [HttpPost("CreateProject")]
         [Authorize(Roles = "Employee")]
         public async Task<IActionResult> CreateProject([FromBody] Request_CreateProject request)
         {
@@ -46,7 +46,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Add design")]
+        [HttpPost("AddDesign")]
         [Authorize(Roles = "Designer")]
         public async Task<IActionResult> AddDesign([FromBody] Request_CreateDesign request)
         {
@@ -65,7 +65,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Approve design/{designId}")]
+        [HttpPost("ApproveDesign/{designId}")]
         [Authorize]
         public async Task<IActionResult> ApproveDesign(long designId)
         {
@@ -79,7 +79,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Reject design/{designId}")]
+        [HttpPost("RejectDesign/{designId}")]
         [Authorize]
         public async Task<IActionResult> RejectDesign(long designId)
         {
@@ -93,7 +93,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Confirm design-for-printing")]
+        [HttpPost("ConfirmDesign-for-printing")]
         [Authorize]
         public async Task<IActionResult> ConfirmDesignForPrintingAsync([FromBody] Request_CreatePrintJob request)
         {
@@ -112,7 +112,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Create resources")]
+        [HttpPost("CreateResources")]
         [Authorize]
         public async Task<IActionResult> CreateResources([FromBody] Request_CreateResource request)
         {
@@ -131,7 +131,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Create resource-property")]
+        [HttpPost("CreateResource-property")]
         [Authorize]
         public async Task<IActionResult> CreateResourceProperty([FromBody] Request_CreateResourceProperty request)
         {
@@ -150,7 +150,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Create resource-property-detail")]
+        [HttpPost("CreateResource-property-detail")]
         [Authorize]
         public async Task<IActionResult> CreateResourcePropertyDetail([FromBody] Request_CreateResourcePropertyDetail request)
         {
@@ -169,7 +169,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Create Resource-for-print-job")]
+        [HttpPost("CreateResource-for-print-job")]
         [Authorize]
         public async Task<IActionResult> CreateResourceForPrintJob([FromBody] Request_CreateResourceForPrintJob request)
         {
@@ -188,7 +188,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Using resource-for-print-job")]
+        [HttpPost("UsingResource-for-print-job")]
         [Authorize]
         public async Task<IActionResult> UsingResourceForPrintJob(long resourceForPrintJobId)
         {
@@ -202,7 +202,7 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("Confirm finishing-project")]
+        [HttpPost("ConfirmFinishing-project")]
         [Authorize]
         public async Task<IActionResult> ConfirmFinishingProject(long printJobId, long projectId)
         {
