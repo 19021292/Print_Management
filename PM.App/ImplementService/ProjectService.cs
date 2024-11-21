@@ -253,6 +253,52 @@ namespace PM.Application.ImplementService
             }
         }
 
+        public async Task<ResponseObject<List<DataResponseProject>>> GetAllProjectsAsync()
+        {
+            try
+            {
+                var projects = await _projectRepository.GetAllAsync();
+
+                if (projects == null || !projects.Any())
+                {
+                    return new ResponseObject<List<DataResponseProject>>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "No projects found.",
+                        Data = null
+                    };
+                }
+
+                var responseData = projects.Select(project => new DataResponseProject
+                {
+                    ProjectName = project.ProjectName,
+                    RequestDescriptionFromCustomer = project.RequestDescriptionFromCustomer,
+                    StartDate = project.StartDate,
+                    ExpectedEndDate = project.ExpectedEndDate,
+                    EmployeeId = project.EmployeeId,
+                    CustomerId = project.CustomerId,
+                    ProjectStatus = project.ProjectStatus.ToString(),
+                    Id = project.Id,
+                }).ToList();
+
+                return new ResponseObject<List<DataResponseProject>>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Projects retrieved successfully.",
+                    Data = responseData
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<List<DataResponseProject>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
         private string GenerateCodeActive()
         {
             string str = "Print job is completed and the project is fisnished. Code: " + DateTime.Now.ToString();

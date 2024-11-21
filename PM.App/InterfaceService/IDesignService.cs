@@ -12,7 +12,8 @@ namespace PM.Application.InterfaceService
     public interface IDesignService
     {
         Task<ResponseObject<DataResponseDesign>> CreateDesignAsync(Request_CreateDesign request);
-
+        Task<ResponseObject<List<DataResponseDesign>>> GetAllDesignsForAllProjectsAsync();
+        Task<ResponseObject<List<DataResponseDesign>>> GetAllDesignAsync(long projectId);
         Task<ResponseObject<DataResponseDesign>> ApproveDesignAsync(long designId);
         Task<ResponseObject<DataResponseDesign>> RejectDesignAsync(long designId);
     }

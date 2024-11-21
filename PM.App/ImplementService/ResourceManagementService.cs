@@ -116,6 +116,51 @@ namespace PM.Application.ImplementService
             }
         }
 
+        public async Task<ResponseObject<List<DataResponseResource>>> GetAllResourcesAsync()
+        {
+            try
+            {
+                var resources = await _resourceRepository.GetAllAsync();
+
+                if (resources == null || !resources.Any())
+                {
+                    return new ResponseObject<List<DataResponseResource>>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "No resources found.",
+                        Data = null
+                    };
+                }
+
+                var response = resources.Select(r => new DataResponseResource
+                {
+                    ResourceName = r.ResourceName,
+                    Image = r.Image,
+                    ResourceType = r.ResourceType.ToString(),
+                    AvailableQuantity = r.AvailableQuantity,
+                    ResourceStatus = r.ResourceStatus.ToString(),
+                    Id = r.Id,
+                }).ToList();
+
+                return new ResponseObject<List<DataResponseResource>>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Resources retrieved successfully.",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<List<DataResponseResource>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+
         public async Task<ResponseObject<DataResponseResourceForPrintJob>> CreateResourceForPrintJobAsync(Request_CreateResourceForPrintJob request)
         {
             try

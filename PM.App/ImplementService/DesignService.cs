@@ -131,6 +131,138 @@ namespace PM.Application.ImplementService
             }
         }
 
+        public async Task<ResponseObject<List<DataResponseDesign>>> GetAllDesignsForAllProjectsAsync()
+        {
+            try
+            {
+                var currentUser = _contextAccessor.HttpContext.User;
+
+                if (!currentUser.Identity.IsAuthenticated)
+                {
+                    return new ResponseObject<List<DataResponseDesign>>
+                    {
+                        Status = StatusCodes.Status401Unauthorized,
+                        Message = "Unauthorized user.",
+                        Data = null
+                    };
+                }
+
+                if (!currentUser.IsInRole("Designer") && !currentUser.IsInRole("ProjectLeader") && !currentUser.IsInRole("Admin"))
+                {
+                    return new ResponseObject<List<DataResponseDesign>>
+                    {
+                        Status = StatusCodes.Status403Forbidden,
+                        Message = "You must be a designer, project leader, or admin to view designs.",
+                        Data = null
+                    };
+                }
+
+                var designs = await _designRepository.GetAllAsync();
+
+                if (designs == null || !designs.Any())
+                {
+                    return new ResponseObject<List<DataResponseDesign>>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "No designs found for any project.",
+                        Data = null
+                    };
+                }
+
+                var responseData = designs.Select(d => new DataResponseDesign
+                {
+                    ProjectId = d.ProjectId,
+                    DesignerId = d.DesignerId,
+                    FilePath = d.FilePath,
+                    DesignTime = d.DesignTime,
+                    DesignStatus = d.DesignStatus.ToString(),
+                    Id = d.Id,
+                }).ToList();
+
+                return new ResponseObject<List<DataResponseDesign>>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Designs fetched successfully.",
+                    Data = responseData
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<List<DataResponseDesign>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ResponseObject<List<DataResponseDesign>>> GetAllDesignAsync(long projectId)
+        {
+            try
+            {
+                var currentUser = _contextAccessor.HttpContext.User;
+
+                if (!currentUser.Identity.IsAuthenticated)
+                {
+                    return new ResponseObject<List<DataResponseDesign>>
+                    {
+                        Status = StatusCodes.Status401Unauthorized,
+                        Message = "Unauthorized user.",
+                        Data = null
+                    };
+                }
+
+                if (!currentUser.IsInRole("Designer") && !currentUser.IsInRole("ProjectLeader") && !currentUser.IsInRole("Admin"))
+                {
+                    return new ResponseObject<List<DataResponseDesign>>
+                    {
+                        Status = StatusCodes.Status403Forbidden,
+                        Message = "You must be a designer, project leader, or admin to view designs.",
+                        Data = null
+                    };
+                }
+
+                var designs = await _designRepository.GetAllAsync(d => d.ProjectId == projectId);
+
+                if (designs == null || !designs.Any())
+                {
+                    return new ResponseObject<List<DataResponseDesign>>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "No designs found for the specified project.",
+                        Data = null
+                    };
+                }
+
+                var responseData = designs.Select(d => new DataResponseDesign
+                {
+                    ProjectId = d.ProjectId,
+                    DesignerId = d.DesignerId,
+                    FilePath = d.FilePath,
+                    DesignTime = d.DesignTime,
+                    DesignStatus = d.DesignStatus.ToString(),
+                    Id = d.Id,
+                }).ToList();
+
+                return new ResponseObject<List<DataResponseDesign>>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Designs fetched successfully.",
+                    Data = responseData
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<List<DataResponseDesign>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
         public async Task<ResponseObject<DataResponseDesign>> ApproveDesignAsync(long designId)
         {
             try

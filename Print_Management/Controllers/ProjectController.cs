@@ -46,6 +46,17 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
+        [HttpGet("all-projects")]
+        public async Task<IActionResult> GetAllProjects()
+        {
+            var result = await _projectService.GetAllProjectsAsync();
+            if (result.Status != StatusCodes.Status200OK)
+            {
+                return StatusCode(result.Status, result.Message);
+            }
+            return Ok(result.Data);
+        }
+
         [HttpPost("AddDesign")]
         [Authorize(Roles = "Designer")]
         public async Task<IActionResult> AddDesign([FromBody] Request_CreateDesign request)
@@ -64,6 +75,66 @@ namespace Print_Management.Controllers
 
             return StatusCode(response.Status, response.Message);
         }
+
+        [HttpGet("all-designs")]
+        [Authorize(Roles = "Designer,ProjectLeader,Admin")]
+        public async Task<IActionResult> GetAllDesignsForAllProjects()
+        {
+            var response = await _designService.GetAllDesignsForAllProjectsAsync();
+
+            if (response.Status == StatusCodes.Status401Unauthorized)
+            {
+                return Unauthorized(new { response.Message });
+            }
+
+            if (response.Status == StatusCodes.Status403Forbidden)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { response.Message });
+            }
+
+            if (response.Status == StatusCodes.Status404NotFound)
+            {
+                return NotFound(new { response.Message });
+            }
+
+            if (response.Status == StatusCodes.Status500InternalServerError)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { response.Message });
+            }
+
+            return Ok(response.Data);
+        }
+
+
+        [HttpGet("all-designs-belong-to-project/{projectId}")]
+        [Authorize(Roles = "Designer,ProjectLeader,Admin")]
+        public async Task<IActionResult> GetAllDesigns(long projectId)
+        {
+            var response = await _designService.GetAllDesignAsync(projectId);
+
+            if (response.Status == StatusCodes.Status401Unauthorized)
+            {
+                return Unauthorized(new { response.Message });
+            }
+
+            if (response.Status == StatusCodes.Status403Forbidden)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { response.Message });
+            }
+
+            if (response.Status == StatusCodes.Status404NotFound)
+            {
+                return NotFound(new { response.Message });
+            }
+
+            if (response.Status == StatusCodes.Status500InternalServerError)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { response.Message });
+            }
+
+            return Ok(response.Data);
+        }
+
 
         [HttpPost("ApproveDesign/{designId}")]
         [Authorize]
@@ -129,6 +200,26 @@ namespace Print_Management.Controllers
             }
 
             return StatusCode(response.Status, response.Message);
+        }
+
+        [HttpGet("get-all-resources")]
+        public async Task<IActionResult> GetAllResources()
+        {
+            var currentUser = User;
+
+            var isAdmin = currentUser.IsInRole("Admin");
+            if (!isAdmin)
+            {
+                return Forbid(); 
+            }
+            var result = await _resourceManagementService.GetAllResourcesAsync();
+
+            if (result.Status == StatusCodes.Status200OK)
+            {
+                return Ok(result);
+            }
+
+            return StatusCode(result.Status, result);
         }
 
         [HttpPost("CreateResource-property")]

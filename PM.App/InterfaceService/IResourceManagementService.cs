@@ -15,6 +15,8 @@ namespace PM.Application.InterfaceService
         Task<ResponseObject<DataResponseResourcePropertyDetail>> CreateResourcePropertyDetailAsync(Request_CreateResourcePropertyDetail request);
         Task<ResponseObject<DataResponseResourceProperty>> CreateResourcePropertyAsync(Request_CreateResourceProperty request);
         Task<ResponseObject<DataResponseResource>> CreateResourceAsync(Request_CreateResource request);
+
+        Task<ResponseObject<List<DataResponseResource>>> GetAllResourcesAsync();
         Task<ResponseObject<DataResponseResourceForPrintJob>> UsingResourceForPrintJob(long ResourceForPrintJobId);
 
     }

@@ -14,6 +14,7 @@ namespace PM.Application.InterfaceService
     {
         Task<ResponseObject<DataResponseProject>> CreateProjectAsync(Request_CreateProject request);
 
+        Task<ResponseObject<List<DataResponseProject>>> GetAllProjectsAsync();
         Task<ResponseObject<DataResponseProject>> ConfirmFinishingProjectAsync(long PrintJobId, long ProjectId);
     }
 }
