@@ -185,6 +185,89 @@ namespace PM.Application.ImplementService
             return CalculateJaccardSimilarity(address1, address2) >= threshold;
         }
 
+        public async Task<ResponseObject<List<DataResponseDelivery>>> GetAllDeliveriesAsync()
+        {
+            try
+            {
+                var currentUser = _contextAccessor.HttpContext.User;
+
+                if (!currentUser.Identity.IsAuthenticated)
+                {
+                    return new ResponseObject<List<DataResponseDelivery>>
+                    {
+                        Status = StatusCodes.Status401Unauthorized,
+                        Message = "Unauthorized user.",
+                        Data = null
+                    };
+                }
+
+                string userId = "";
+                foreach (var claim in currentUser.Claims)
+                {
+                    if (claim.Type == "Id")
+                    {
+                        userId = claim.Value;
+                        break;
+                    }
+                }
+
+                var userIdToLong = Convert.ToInt64(userId);
+                var user = await _userRepository.GetUserById(userIdToLong);
+
+                if (user.TeamId.HasValue)
+                {
+                    long teamId = user.TeamId.Value;
+                    var team = await _teamRepository.GetByIdAsync(teamId);
+
+                    if (team.Name != "Shipping" || user.Id != team.ManagerId)
+                    {
+                        return new ResponseObject<List<DataResponseDelivery>>
+                        {
+                            Status = StatusCodes.Status403Forbidden,
+                            Message = "Only Shipping department leaders can view deliveries.",
+                            Data = null
+                        };
+                    }
+
+                    var deliveries = await _deliveryRepository.GetAllAsync();
+
+                    var response = deliveries.Select(d => new DataResponseDelivery
+                    {
+                        ShippingMethodId = d.ShippingMethodId,
+                        CustomerId = d.CustomerId,
+                        DeliverId = d.DeliverId,
+                        ProjectId = d.ProjectId,
+                        DeliveryAddress = d.DeliveryAddress,
+                        EstimateDeliveryTime = d.EstimateDeliveryTime,
+                        DeliveryStatus = d.DeliveryStatus.ToString(),
+                        Id = d.Id,
+                    }).ToList();
+
+                    return new ResponseObject<List<DataResponseDelivery>>
+                    {
+                        Status = StatusCodes.Status200OK,
+                        Message = "Deliveries retrieved successfully.",
+                        Data = response
+                    };
+                }
+
+                return new ResponseObject<List<DataResponseDelivery>>
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Message = "Invalid user or team data.",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<List<DataResponseDelivery>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
 
         public async Task<ResponseObject<DataResponseDelivery>> DeliveryStatusUpdate(long DeliveryId)
         {

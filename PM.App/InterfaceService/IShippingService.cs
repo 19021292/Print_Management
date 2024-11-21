@@ -14,6 +14,8 @@ namespace PM.Application.InterfaceService
     public interface IShippingService
     {
         Task<ResponseObject<DataResponseDelivery>> CreateDeliveryAsync(Request_CreateDelivery request);
+
+        Task<ResponseObject<List<DataResponseDelivery>>> GetAllDeliveriesAsync();
         Task<ResponseObject<DataResponseDelivery>> DeliveryStatusUpdate(long DeliveryId);
     }
 }

@@ -41,6 +41,17 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
+        [HttpGet("GetAllDeliveries")]
+        [Authorize]
+        public async Task<IActionResult> GetAllDeliveriesAsync()
+        {
+            var response = await _shippingService.GetAllDeliveriesAsync();
+
+            return response.Status == StatusCodes.Status200OK
+                ? Ok(response.Data)
+                : StatusCode(response.Status, response.Message);
+        }
+
         [HttpPost("UpdateDelivery-status")]
         [Authorize]
         public async Task<IActionResult> DeliveryStatusUpdate(long deliveryId)

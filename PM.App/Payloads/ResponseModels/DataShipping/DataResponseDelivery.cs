@@ -17,5 +17,7 @@ namespace PM.Application.Payloads.ResponseModels.DataShipping
         public DateTime EstimateDeliveryTime { get; set; }
         public DateTime? ActualDeliveryTime { get; set; }
         public string DeliveryStatus { get; set; }
+
+        public long Id { get; set; }
     }
 }
