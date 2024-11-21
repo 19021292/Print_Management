@@ -34,6 +34,19 @@ namespace Print_Management.Controllers
             return StatusCode(result.Status, result);
         }
 
+        [HttpGet("GetAllTeams")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetAllTeams()
+        {
+            var result = await _teamService.GetAllTeamsAsync();
+            return Ok(new
+            {
+                Status = StatusCodes.Status200OK,
+                Message = "Teams retrieved successfully.",
+                Data = result
+            });
+        }
+
         [HttpPut("UpdateTeam/{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> UpdateTeam(long id, [FromBody] Request_Create request)

@@ -238,10 +238,50 @@ namespace PM.Application.ImplementService
         }
 
 
-        public Task<IEnumerable<Team>> GetAllTeamsAsync()
+        public async Task<ResponseObject<IEnumerable<DataResponseTeam>>> GetAllTeamsAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var teams = await _baseTeamRepository.GetAllAsync();
+
+                if (teams == null || !teams.Any())
+                {
+                    return new ResponseObject<IEnumerable<DataResponseTeam>>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "No teams found.",
+                        Data = null
+                    };
+                }
+
+                var response = teams.Select(team => new DataResponseTeam
+                {
+                    Name = team.Name,
+                    Description = team.Description,
+                    NumberOfMember = team.NumberOfMember,
+                    CreateTime = team.CreateTime,
+                    UpdateTime = team.UpdateTime,
+                    ManagerId = team.ManagerId
+                });
+
+                return new ResponseObject<IEnumerable<DataResponseTeam>>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Teams retrieved successfully.",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<IEnumerable<DataResponseTeam>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
         }
+
 
         public async Task<ResponseObject<DataResponseTeam>> GetTeamByIdAsync(long teamId)
         {

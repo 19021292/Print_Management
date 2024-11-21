@@ -17,7 +17,7 @@ namespace PM.Domain.InterfaceRepositories
         Task<IEnumerable<TEntity>> CreateAsync(IEnumerable<TEntity> entities);
         Task DeleteAsync(long id);
         Task DeleteAsync(Expression<Func<TEntity, bool>> expression);
-        Task<TEntity> UpdateAsync(TEntity entity);
+        Task<TEntity> UpdateAsync(TEntity entity); 
         Task<IEnumerable<TEntity>> UpdateAsync(IEnumerable<TEntity> entities);
         Task<int> CountAsync(Expression<Func<TEntity, bool>> expression = null);
         Task<int> CountAsync(string include, Expression<Func<TEntity, bool>> expression = null);

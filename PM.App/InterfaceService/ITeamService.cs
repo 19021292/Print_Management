@@ -17,6 +17,7 @@ namespace PM.Application.InterfaceService
         Task<ResponseObject<DataResponseTeam>> GetTeamByIdAsync(long teamId);
         Task<ResponseObject<DataResponseTeam>> DeleteTeamAsync(long teamId);
 
+        Task<ResponseObject<IEnumerable<DataResponseTeam>>> GetAllTeamsAsync();
         Task<ResponseObject<DataResponseTeam>> AddUserToTeamAsync(long teamId, long userId);
     }
 }
