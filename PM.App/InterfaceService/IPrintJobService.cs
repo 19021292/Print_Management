@@ -12,5 +12,7 @@ namespace PM.Application.InterfaceService
     public interface IPrintJobService
     {
         Task<ResponseObject<DataResponsePrintjob>> ConfirmDesignForPrintingAsync(Request_CreatePrintJob request);
+
+        Task<ResponseObject<List<DataResponsePrintjob>>> GetAllPrintJobsAsync();
     }
 }

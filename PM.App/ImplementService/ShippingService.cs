@@ -219,12 +219,12 @@ namespace PM.Application.ImplementService
                     long teamId = user.TeamId.Value;
                     var team = await _teamRepository.GetByIdAsync(teamId);
 
-                    if (team.Name != "Shipping" || user.Id != team.ManagerId)
+                    if (team.Name != "Shipping")
                     {
                         return new ResponseObject<List<DataResponseDelivery>>
                         {
                             Status = StatusCodes.Status403Forbidden,
-                            Message = "Only Shipping department leaders can view deliveries.",
+                            Message = "Only Shipping team can view deliveries.",
                             Data = null
                         };
                     }

@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PM.Application.ImplementService;
 using PM.Application.InterfaceService;
 using PM.Application.Payloads.RequestModels.ProjectRequests;
+using PM.Application.Payloads.ResponseModels.DataProjects;
+using PM.Application.Payloads.Responses;
 
 namespace Print_Management.Controllers
 {
@@ -241,6 +244,30 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
+        [HttpGet("GetAllResourceProperties")]
+        public async Task<ActionResult<ResponseObject<List<DataResponseResourceProperty>>>> GetAllResourcePropertiesAsync()
+        {
+            try
+            {
+                var result = await _resourceManagementService.GetAllResourcePropertiesAsync();
+                if (result.Status == StatusCodes.Status404NotFound)
+                {
+                    return NotFound(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseObject<List<DataResponseResourceProperty>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+
         [HttpPost("CreateResource-property-detail")]
         [Authorize]
         public async Task<IActionResult> CreateResourcePropertyDetail([FromBody] Request_CreateResourcePropertyDetail request)
@@ -260,30 +287,30 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
-        [HttpPost("CreateResource-for-print-job")]
-        [Authorize]
-        public async Task<IActionResult> CreateResourceForPrintJob([FromBody] Request_CreateResourceForPrintJob request)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[HttpPost("CreateResource-for-print-job")]
+        //[Authorize]
+        //public async Task<IActionResult> CreateResourceForPrintJob([FromBody] Request_CreateResourceForPrintJob request)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var response = await _resourceManagementService.CreateResourceForPrintJobAsync(request);
+        //    var response = await _resourceManagementService.CreateResourceForPrintJobAsync(request);
 
-            if (response.Status == StatusCodes.Status201Created)
-            {
-                return CreatedAtAction(nameof(CreateResourceForPrintJob), new { id = response.Data.Id }, response.Data);
-            }
+        //    if (response.Status == StatusCodes.Status201Created)
+        //    {
+        //        return CreatedAtAction(nameof(CreateResourceForPrintJob), new { id = response.Data.Id }, response.Data);
+        //    }
 
-            return StatusCode(response.Status, response.Message);
-        }
+        //    return StatusCode(response.Status, response.Message);
+        //}
 
         [HttpPost("UsingResource-for-print-job")]
         [Authorize]
-        public async Task<IActionResult> UsingResourceForPrintJob(long resourceForPrintJobId)
+        public async Task<IActionResult> UsingResourceForPrintJob([FromBody] Request_CreateResourceForPrintJob request)
         {
-            var response = await _resourceManagementService.UsingResourceForPrintJob(resourceForPrintJobId);
+            var response = await _resourceManagementService.UsingResourceForPrintJob(request);
 
             if (response.Status == StatusCodes.Status202Accepted)
             {
@@ -291,6 +318,18 @@ namespace Print_Management.Controllers
             }
 
             return StatusCode(response.Status, response.Message);
+        }
+
+        [HttpGet("print-jobs")]
+        public async Task<IActionResult> GetAllPrintJobs()
+        {
+            var result = await _printJobService.GetAllPrintJobsAsync();
+
+            if (result.Status != StatusCodes.Status200OK)
+            {
+                return StatusCode(result.Status, result.Message);
+            }
+            return Ok(result.Data);
         }
 
         [HttpPost("ConfirmFinishing-project")]

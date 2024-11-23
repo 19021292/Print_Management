@@ -160,94 +160,6 @@ namespace PM.Application.ImplementService
             }
         }
 
-
-        public async Task<ResponseObject<DataResponseResourceForPrintJob>> CreateResourceForPrintJobAsync(Request_CreateResourceForPrintJob request)
-        {
-            try
-            {
-                var currentUser = _contextAccessor.HttpContext.User;
-
-                if (!currentUser.Identity.IsAuthenticated)
-                {
-                    return new ResponseObject<DataResponseResourceForPrintJob>
-                    {
-                        Status = StatusCodes.Status401Unauthorized,
-                        Message = "Unauthorized user.",
-                        Data = null
-                    };
-                }
-
-                string userId = "";
-
-                foreach (var claim in currentUser.Claims)
-                {
-                    Console.WriteLine($"{claim.Type}: {claim.Value}");
-                    if (claim.Type == "Id")
-                    {
-                        userId = claim.Value;
-                        break;
-                    }
-                }
-
-                var printJob = await _printJobRepository.GetByIdAsync(request.PrintJobId);
-                var design = await _designRepository.GetByIdAsync(printJob.DesignId);
-                var project = await _projectRepository.GetByIdAsync(design.ProjectId);
-
-                var leaderId = Convert.ToInt64(userId);
-                var leader = await _userRepository.GetUserById(leaderId);
-
-                if(printJob == null || design == null || project == null || leader == null)
-                {
-                    return new ResponseObject<DataResponseResourceForPrintJob>
-                    {
-                        Status = StatusCodes.Status400BadRequest,
-                        Message = "Incorrect information.",
-                        Data = null
-                    };
-                }
-
-                if (!leaderId.Equals(project.EmployeeId))
-                {
-                    return new ResponseObject<DataResponseResourceForPrintJob>
-                    {
-                        Status = StatusCodes.Status403Forbidden,
-                        Message = "Only project leader can create resources to printjob.",
-                        Data = null
-                    };
-                }
-
-                var resourceForPrintJob = new ResourceForPrintJob
-                {
-                    ResourcePropertyDetailId = request.ResourcePropertyDetailId,
-                    PrintJobId = request.PrintJobId,
-                };
-
-                await _resourceForPrintJobRepository.CreateAsync(resourceForPrintJob);
-
-                var response = new DataResponseResourceForPrintJob
-                {
-                    ResourcePropertyDetailId = resourceForPrintJob.ResourcePropertyDetailId,
-                    PrintJobId = resourceForPrintJob.PrintJobId,
-                };
-
-                return new ResponseObject<DataResponseResourceForPrintJob>
-                {
-                    Status = StatusCodes.Status201Created,
-                    Message = "Resources for print job created successfully",
-                    Data = response
-                };
-            }
-            catch (Exception ex)
-            {
-                return new ResponseObject<DataResponseResourceForPrintJob>
-                {
-                    Status = StatusCodes.Status500InternalServerError,
-                    Message = ex.Message,
-                    Data = null
-                };
-            }
-        }
-
         public async Task<ResponseObject<DataResponseResourceProperty>> CreateResourcePropertyAsync(Request_CreateResourceProperty request)
         {
             try
@@ -307,6 +219,49 @@ namespace PM.Application.ImplementService
             }
         }
 
+        public async Task<ResponseObject<List<DataResponseResourceProperty>>> GetAllResourcePropertiesAsync()
+        {
+            try
+            {
+                var resourceProperties = await _resourcePropertyRepository.GetAllAsync();
+
+                if (resourceProperties == null || !resourceProperties.Any())
+                {
+                    return new ResponseObject<List<DataResponseResourceProperty>>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "No resource properties found.",
+                        Data = null
+                    };
+                }
+
+                var response = resourceProperties.Select(rp => new DataResponseResourceProperty
+                {
+                    ResourcePropertyName = rp.ResourcePropertyName,
+                    Quantity = rp.Quantity,
+                    ResourceId = rp.ResourceId,
+                    Id = rp.Id,
+                }).ToList();
+
+                return new ResponseObject<List<DataResponseResourceProperty>>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Resource properties retrieved successfully.",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<List<DataResponseResourceProperty>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+
         public async Task<ResponseObject<DataResponseResourcePropertyDetail>> CreateResourcePropertyDetailAsync(Request_CreateResourcePropertyDetail request)
         {
             try
@@ -356,7 +311,7 @@ namespace PM.Application.ImplementService
                 return new ResponseObject<DataResponseResourcePropertyDetail>
                 {
                     Status = StatusCodes.Status201Created,
-                    Message = "Resources property detail created successfully",
+                    Message = "Resources property detail number " + resourcePropertyDetail.Id.ToString() + "created successfully",
                     Data = response
                 };
             }
@@ -371,8 +326,7 @@ namespace PM.Application.ImplementService
             }
         }
 
-
-        public async Task<ResponseObject<DataResponseResourceForPrintJob>> UsingResourceForPrintJob(long ResourceForPrintJobId)
+        public async Task<ResponseObject<DataResponseResourceForPrintJob>> CreateResourceForPrintJobAsync(Request_CreateResourceForPrintJob request)
         {
             try
             {
@@ -400,7 +354,94 @@ namespace PM.Application.ImplementService
                     }
                 }
 
-                var printJob = await _printJobRepository.GetByIdAsync(ResourceForPrintJobId);
+                var printJob = await _printJobRepository.GetByIdAsync(request.PrintJobId);
+                var design = await _designRepository.GetByIdAsync(printJob.DesignId);
+                var project = await _projectRepository.GetByIdAsync(design.ProjectId);
+
+                var leaderId = Convert.ToInt64(userId);
+                var leader = await _userRepository.GetUserById(leaderId);
+
+                if (printJob == null || design == null || project == null || leader == null)
+                {
+                    return new ResponseObject<DataResponseResourceForPrintJob>
+                    {
+                        Status = StatusCodes.Status400BadRequest,
+                        Message = "Incorrect information.",
+                        Data = null
+                    };
+                }
+
+                if (!leaderId.Equals(project.EmployeeId))
+                {
+                    return new ResponseObject<DataResponseResourceForPrintJob>
+                    {
+                        Status = StatusCodes.Status403Forbidden,
+                        Message = "Only project leader can create resources to printjob.",
+                        Data = null
+                    };
+                }
+
+                var resourceForPrintJob = new ResourceForPrintJob
+                {
+                    ResourcePropertyDetailId = request.ResourcePropertyDetailId,
+                    PrintJobId = request.PrintJobId,
+                };
+
+                await _resourceForPrintJobRepository.CreateAsync(resourceForPrintJob);
+
+                var response = new DataResponseResourceForPrintJob
+                {
+                    ResourcePropertyDetailId = resourceForPrintJob.ResourcePropertyDetailId,
+                    PrintJobId = resourceForPrintJob.PrintJobId,
+                };
+
+                return new ResponseObject<DataResponseResourceForPrintJob>
+                {
+                    Status = StatusCodes.Status201Created,
+                    Message = "Resources for print job created successfully",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponseResourceForPrintJob>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ResponseObject<DataResponseResourceForPrintJob>> UsingResourceForPrintJob(Request_CreateResourceForPrintJob request)
+        {
+            try
+            {
+                var currentUser = _contextAccessor.HttpContext.User;
+
+                if (!currentUser.Identity.IsAuthenticated)
+                {
+                    return new ResponseObject<DataResponseResourceForPrintJob>
+                    {
+                        Status = StatusCodes.Status401Unauthorized,
+                        Message = "Unauthorized user.",
+                        Data = null
+                    };
+                }
+
+                string userId = "";
+
+                foreach (var claim in currentUser.Claims)
+                {
+                    Console.WriteLine($"{claim.Type}: {claim.Value}");
+                    if (claim.Type == "Id")
+                    {
+                        userId = claim.Value;
+                        break;
+                    }
+                }
+
+                var printJob = await _printJobRepository.GetByIdAsync(request.PrintJobId);
                 var design = await _designRepository.GetByIdAsync(printJob.DesignId);
                 var project = await _projectRepository.GetByIdAsync(design.ProjectId);
 
@@ -416,7 +457,13 @@ namespace PM.Application.ImplementService
                         Data = null
                     };
                 }
-                var resourceForPrintJob = await _resourceForPrintJobRepository.GetByIdAsync(ResourceForPrintJobId);
+                var resourceForPrintJob = new ResourceForPrintJob
+                {
+                    ResourcePropertyDetailId = request.ResourcePropertyDetailId,
+                    PrintJobId = request.PrintJobId,
+                };
+
+                await _resourceForPrintJobRepository.CreateAsync(resourceForPrintJob);
 
                 if (resourceForPrintJob == null)
                 {
@@ -527,7 +574,9 @@ namespace PM.Application.ImplementService
                         else
                         {
                             resources.AvailableQuantity = resources.AvailableQuantity - resourcePropertyDetail.Quantity;
+                            resourceProperty.Quantity = resourceProperty.Quantity - resourcePropertyDetail.Quantity;
                             await _resourceRepository.UpdateAsync(resources);
+                            await _resourcePropertyRepository.UpdateAsync(resourceProperty);
 
                             return new ResponseObject<DataResponseResourceForPrintJob>
                             {

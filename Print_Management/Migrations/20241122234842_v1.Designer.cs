@@ -12,8 +12,8 @@ using PM.Infrastructure.DataContext;
 namespace Print_Management.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240731081624_v1_1")]
-    partial class v1_1
+    [Migration("20241122234842_v1")]
+    partial class v1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -88,6 +88,56 @@ namespace Print_Management.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("PM.Domain.Entities.Delivery", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ActualDeliveryTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("CustomerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DeliverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DeliveryAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeliveryStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EstimateDeliveryTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("ProjectId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ShippingMethodId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("DeliverId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("ShippingMethodId");
+
+                    b.ToTable("Deliveries");
+                });
+
             modelBuilder.Entity("PM.Domain.Entities.Design", b =>
                 {
                     b.Property<long>("Id")
@@ -99,8 +149,9 @@ namespace Print_Management.Migrations
                     b.Property<long?>("ApproverId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("DesignStatus")
-                        .HasColumnType("int");
+                    b.Property<string>("DesignStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DesignTime")
                         .HasColumnType("datetime2");
@@ -188,6 +239,31 @@ namespace Print_Management.Migrations
                     b.ToTable("Permissions");
                 });
 
+            modelBuilder.Entity("PM.Domain.Entities.PrintJobs", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("DesignId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PrintJobStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DesignId");
+
+                    b.ToTable("PrintJobs");
+                });
+
             modelBuilder.Entity("PM.Domain.Entities.Project", b =>
                 {
                     b.Property<long>("Id")
@@ -260,6 +336,130 @@ namespace Print_Management.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("PM.Domain.Entities.ResourceForPrintJob", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<long>("PrintJobId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ResourcePropertyDetailId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrintJobId");
+
+                    b.HasIndex("ResourcePropertyDetailId");
+
+                    b.ToTable("ResourceForPrintJobs");
+                });
+
+            modelBuilder.Entity("PM.Domain.Entities.ResourceProperty", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<long>("ResourceId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ResourcePropertyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResourceId");
+
+                    b.ToTable("ResourceProperties");
+                });
+
+            modelBuilder.Entity("PM.Domain.Entities.ResourcePropertyDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PropertyDetailName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("PropertyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId");
+
+                    b.ToTable("ResourcePropertyDetail");
+                });
+
+            modelBuilder.Entity("PM.Domain.Entities.Resources", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("AvailableQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ResourceName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResourceStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResourceType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Resources");
+                });
+
             modelBuilder.Entity("PM.Domain.Entities.Role", b =>
                 {
                     b.Property<long>("Id")
@@ -282,6 +482,26 @@ namespace Print_Management.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("PM.Domain.Entities.ShippingMethod", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ShippingMethodName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ShippingMethods");
+                });
+
             modelBuilder.Entity("PM.Domain.Entities.Team", b =>
                 {
                     b.Property<long>("Id")
@@ -299,7 +519,7 @@ namespace Print_Management.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<long?>("ManagerId")
+                    b.Property<long>("ManagerId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Name")
@@ -312,6 +532,8 @@ namespace Print_Management.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ManagerId");
 
                     b.ToTable("Teams");
                 });
@@ -363,9 +585,7 @@ namespace Print_Management.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TeamId")
-                        .IsUnique()
-                        .HasFilter("[TeamId] IS NOT NULL");
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Users");
                 });
@@ -379,6 +599,41 @@ namespace Print_Management.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("PM.Domain.Entities.Delivery", b =>
+                {
+                    b.HasOne("PM.Domain.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PM.Domain.Entities.User", "Deliver")
+                        .WithMany()
+                        .HasForeignKey("DeliverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PM.Domain.Entities.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PM.Domain.Entities.ShippingMethod", "ShippingMethod")
+                        .WithMany()
+                        .HasForeignKey("ShippingMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Deliver");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("ShippingMethod");
                 });
 
             modelBuilder.Entity("PM.Domain.Entities.Design", b =>
@@ -428,6 +683,17 @@ namespace Print_Management.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PM.Domain.Entities.PrintJobs", b =>
+                {
+                    b.HasOne("PM.Domain.Entities.Design", "Design")
+                        .WithMany()
+                        .HasForeignKey("DesignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Design");
+                });
+
             modelBuilder.Entity("PM.Domain.Entities.Project", b =>
                 {
                     b.HasOne("PM.Domain.Entities.Customer", "Customer")
@@ -458,11 +724,64 @@ namespace Print_Management.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PM.Domain.Entities.ResourceForPrintJob", b =>
+                {
+                    b.HasOne("PM.Domain.Entities.PrintJobs", "PrintJob")
+                        .WithMany()
+                        .HasForeignKey("PrintJobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PM.Domain.Entities.ResourcePropertyDetail", "ResourcePropertyDetail")
+                        .WithMany()
+                        .HasForeignKey("ResourcePropertyDetailId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PrintJob");
+
+                    b.Navigation("ResourcePropertyDetail");
+                });
+
+            modelBuilder.Entity("PM.Domain.Entities.ResourceProperty", b =>
+                {
+                    b.HasOne("PM.Domain.Entities.Resources", "Resource")
+                        .WithMany()
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("PM.Domain.Entities.ResourcePropertyDetail", b =>
+                {
+                    b.HasOne("PM.Domain.Entities.ResourceProperty", "Property")
+                        .WithMany()
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+                });
+
+            modelBuilder.Entity("PM.Domain.Entities.Team", b =>
+                {
+                    b.HasOne("PM.Domain.Entities.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Manager");
+                });
+
             modelBuilder.Entity("PM.Domain.Entities.User", b =>
                 {
                     b.HasOne("PM.Domain.Entities.Team", "Team")
-                        .WithOne("Manager")
-                        .HasForeignKey("PM.Domain.Entities.User", "TeamId");
+                        .WithMany("Users")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Team");
                 });
@@ -474,7 +793,7 @@ namespace Print_Management.Migrations
 
             modelBuilder.Entity("PM.Domain.Entities.Team", b =>
                 {
-                    b.Navigation("Manager");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("PM.Domain.Entities.User", b =>

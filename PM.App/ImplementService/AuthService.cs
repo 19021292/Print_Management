@@ -424,7 +424,7 @@ namespace PM.Application.ImplementService
                     return new ResponseObject<List<DataResponseUser>>
                     {
                         Status = StatusCodes.Status403Forbidden,
-                        Message = "Only administrators can access this resource.",
+                        Message = "Only administrators can view all users.",
                         Data = null
                     };
                 }

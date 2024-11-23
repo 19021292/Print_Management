@@ -12,8 +12,8 @@ using PM.Infrastructure.DataContext;
 namespace Print_Management.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240801010158_v1_7")]
-    partial class v1_7
+    [Migration("20241122235655_v2")]
+    partial class v2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
