@@ -202,8 +202,10 @@ namespace PM.Application.ImplementService
                 }
 
                 string userId = "";
+
                 foreach (var claim in currentUser.Claims)
                 {
+                    Console.WriteLine($"{claim.Type}: {claim.Value}");
                     if (claim.Type == "Id")
                     {
                         userId = claim.Value;
@@ -214,48 +216,59 @@ namespace PM.Application.ImplementService
                 var userIdToLong = Convert.ToInt64(userId);
                 var user = await _userRepository.GetUserById(userIdToLong);
 
-                if (user.TeamId.HasValue)
+                if (user == null)
                 {
-                    long teamId = user.TeamId.Value;
-                    var team = await _teamRepository.GetByIdAsync(teamId);
-
-                    if (team.Name != "Shipping")
-                    {
-                        return new ResponseObject<List<DataResponseDelivery>>
-                        {
-                            Status = StatusCodes.Status403Forbidden,
-                            Message = "Only Shipping team can view deliveries.",
-                            Data = null
-                        };
-                    }
-
-                    var deliveries = await _deliveryRepository.GetAllAsync();
-
-                    var response = deliveries.Select(d => new DataResponseDelivery
-                    {
-                        ShippingMethodId = d.ShippingMethodId,
-                        CustomerId = d.CustomerId,
-                        DeliverId = d.DeliverId,
-                        ProjectId = d.ProjectId,
-                        DeliveryAddress = d.DeliveryAddress,
-                        EstimateDeliveryTime = d.EstimateDeliveryTime,
-                        DeliveryStatus = d.DeliveryStatus.ToString(),
-                        Id = d.Id,
-                    }).ToList();
-
                     return new ResponseObject<List<DataResponseDelivery>>
                     {
-                        Status = StatusCodes.Status200OK,
-                        Message = "Deliveries retrieved successfully.",
-                        Data = response
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "User not found.",
+                        Data = null
                     };
                 }
 
+                if (!user.TeamId.HasValue)
+                {
+                    return new ResponseObject<List<DataResponseDelivery>>
+                    {
+                        Status = StatusCodes.Status403Forbidden,
+                        Message = "User is not assigned to any team.",
+                        Data = null
+                    };
+                }
+
+                var teamId = user.TeamId.Value;
+                var team = await _teamRepository.GetByIdAsync(3);
+
+                if (team == null || teamId != 3)
+                {
+                    return new ResponseObject<List<DataResponseDelivery>>
+                    {
+                        Status = StatusCodes.Status403Forbidden,
+                        Message = "Only users in the Shipping team can view deliveries.",
+                        Data = null
+                    };
+                }
+
+                var deliveries = await _deliveryRepository.GetAllAsync();
+
+                var response = deliveries.Select(d => new DataResponseDelivery
+                {
+                    ShippingMethodId = d.ShippingMethodId,
+                    CustomerId = d.CustomerId,
+                    DeliverId = d.DeliverId,
+                    ProjectId = d.ProjectId,
+                    DeliveryAddress = d.DeliveryAddress,
+                    ActualDeliveryTime = d.ActualDeliveryTime,
+                    EstimateDeliveryTime = d.EstimateDeliveryTime,
+                    DeliveryStatus = d.DeliveryStatus.ToString(),
+                    Id = d.Id,
+                }).ToList();
+
                 return new ResponseObject<List<DataResponseDelivery>>
                 {
-                    Status = StatusCodes.Status400BadRequest,
-                    Message = "Invalid user or team data.",
-                    Data = null
+                    Status = StatusCodes.Status200OK,
+                    Message = "Deliveries retrieved successfully.",
+                    Data = response
                 };
             }
             catch (Exception ex)
@@ -385,6 +398,7 @@ namespace PM.Application.ImplementService
                             ProjectId = response.ProjectId,
                             DeliveryAddress = response.DeliveryAddress,
                             EstimateDeliveryTime = response.EstimateDeliveryTime,
+                            ActualDeliveryTime = response.ActualDeliveryTime,
                             DeliveryStatus = response.DeliveryStatus.ToString()
                         }
                     };

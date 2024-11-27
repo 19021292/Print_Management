@@ -147,16 +147,6 @@ namespace PM.Application.ImplementService
                     };
                 }
 
-                if (!currentUser.IsInRole("Designer") && !currentUser.IsInRole("ProjectLeader") && !currentUser.IsInRole("Admin"))
-                {
-                    return new ResponseObject<List<DataResponseDesign>>
-                    {
-                        Status = StatusCodes.Status403Forbidden,
-                        Message = "You must be a designer, project leader, or admin to view designs.",
-                        Data = null
-                    };
-                }
-
                 var designs = await _designRepository.GetAllAsync();
 
                 if (designs == null || !designs.Any())
@@ -176,6 +166,7 @@ namespace PM.Application.ImplementService
                     FilePath = d.FilePath,
                     DesignTime = d.DesignTime,
                     DesignStatus = d.DesignStatus.ToString(),
+                    ApproverId = d.ApproverId,
                     Id = d.Id,
                 }).ToList();
 
@@ -209,16 +200,6 @@ namespace PM.Application.ImplementService
                     {
                         Status = StatusCodes.Status401Unauthorized,
                         Message = "Unauthorized user.",
-                        Data = null
-                    };
-                }
-
-                if (!currentUser.IsInRole("Designer") && !currentUser.IsInRole("ProjectLeader") && !currentUser.IsInRole("Admin"))
-                {
-                    return new ResponseObject<List<DataResponseDesign>>
-                    {
-                        Status = StatusCodes.Status403Forbidden,
-                        Message = "You must be a designer, project leader, or admin to view designs.",
                         Data = null
                     };
                 }

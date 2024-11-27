@@ -80,7 +80,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpGet("all-designs")]
-        [Authorize(Roles = "Designer,ProjectLeader,Admin")]
         public async Task<IActionResult> GetAllDesignsForAllProjects()
         {
             var response = await _designService.GetAllDesignsForAllProjectsAsync();
@@ -88,11 +87,6 @@ namespace Print_Management.Controllers
             if (response.Status == StatusCodes.Status401Unauthorized)
             {
                 return Unauthorized(new { response.Message });
-            }
-
-            if (response.Status == StatusCodes.Status403Forbidden)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new { response.Message });
             }
 
             if (response.Status == StatusCodes.Status404NotFound)
@@ -118,11 +112,6 @@ namespace Print_Management.Controllers
             if (response.Status == StatusCodes.Status401Unauthorized)
             {
                 return Unauthorized(new { response.Message });
-            }
-
-            if (response.Status == StatusCodes.Status403Forbidden)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new { response.Message });
             }
 
             if (response.Status == StatusCodes.Status404NotFound)

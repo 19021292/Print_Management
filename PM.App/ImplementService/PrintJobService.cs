@@ -58,7 +58,8 @@ namespace PM.Application.ImplementService
                 var response = printJobs.Select(printJob => new DataResponsePrintjob
                 {
                     DesignId = printJob.DesignId,
-                    PrintJobStatus = printJob.PrintJobStatus.ToString()
+                    PrintJobStatus = printJob.PrintJobStatus.ToString(),
+                    Id = printJob.Id,
                 }).ToList();
 
                 return new ResponseObject<List<DataResponsePrintjob>>
