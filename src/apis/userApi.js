@@ -13,6 +13,19 @@ export const getAllUsers = async () => {
   }
 };
 
+export const getAllUsersFromAllUsersApi = async () => {
+  try {
+    const response = await axiosInstance.get('/Auth/GetAllUsers/all-users');
+    if (!response.data) {
+      throw new Error(response.data.message || 'Error fetching all users from all-users API');
+    }
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all users from all-users API:', error);
+    throw error;
+  }
+};
+
 export const getUserProfile = async () => {
   try {
     const response = await axiosInstance.get('/user/profile');
@@ -74,6 +87,19 @@ export const deleteUser = async (id) => {
     return response.data.data;
   } catch (error) {
     console.error('Error deleting user:', error);
+    throw error;
+  }
+};
+
+export const addRolesToUser = async (userId, roles) => {
+  try {
+    const response = await axiosInstance.post(`/Auth/AddRolesToUser/${userId}`, { roles });
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Error adding roles to user');
+    }
+    return response.data.data;
+  } catch (error) {
+    console.error('Error adding roles to user:', error);
     throw error;
   }
 };

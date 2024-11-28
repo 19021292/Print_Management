@@ -5,13 +5,7 @@
       <a-breadcrumb-item>Quản lý tài nguyên</a-breadcrumb-item>
     </a-breadcrumb>
     <div class="actions-bar">
-      <a-input-search
-        placeholder="Tìm kiếm tài nguyên"
-        enter-button
-        @search="handleSearch"
-        style="max-width: 300px;"
-      />
-      <a-button type="primary" @click="showCreateModal">Thêm tài nguyên</a-button>
+      <a-button v-if="isAdmin" type="primary" @click="showCreateModal">Thêm tài nguyên</a-button>
     </div>
     <a-table
       :columns="columns"
@@ -135,6 +129,12 @@ export default {
         resourceStatus: [{ required: true, message: 'Vui lòng nhập trạng thái tài nguyên!' }],
       },
     };
+  },
+  computed: {
+    isAdmin() {
+      const roles = JSON.parse(localStorage.getItem('roles') || '[]');
+      return roles.includes('Admin');
+    }
   },
   async created() {
     this.fetchResources();

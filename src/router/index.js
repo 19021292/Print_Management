@@ -4,9 +4,12 @@ import UserManagement from '@/views/UserManagement.vue';
 import TeamManagement from '@/views/TeamManagement.vue';
 import RoleManagement from '@/views/RoleManagement.vue';
 import ResourceManagement from '@/views/ResourceManagement.vue';
-import ProjectManagement from '@/views/ProjectManagement.vue'; // Added ProjectManagement
-import PrintManagement from '@/views/PrintManagement.vue'; // Added PrintManagement
-import DesignManagement from '@/views/DesignManagement.vue'; // Added DesignManagement
+import ProjectManagement from '@/views/ProjectManagement.vue';
+import PrintManagement from '@/views/PrintManagement.vue';
+import DesignManagement from '@/views/DesignManagement.vue';
+import ShippingManagement from '@/views/ShippingManagement.vue';
+import ResourcePropertyManagement from '@/views/ResourcePropertyManagement.vue';
+import RegisterView from '@/views/RegisterView.vue';
 
 const routes = [
   { path: '/login', name: 'Login', component: LoginView },
@@ -14,9 +17,12 @@ const routes = [
   { path: '/team', name: 'Team', component: TeamManagement },
   { path: '/roles', name: 'Roles', component: RoleManagement },
   { path: '/resources', name: 'Resources', component: ResourceManagement },
-  { path: '/project-management', name: 'ProjectManagement', component: ProjectManagement }, // Added ProjectManagement route
-  { path: '/print-management', name: 'PrintManagement', component: PrintManagement }, // Added PrintManagement route
-  { path: '/design-management', name: 'DesignManagement', component: DesignManagement }, // Added DesignManagement route
+  { path: '/project-management', name: 'ProjectManagement', component: ProjectManagement }, 
+  { path: '/print-management', name: 'PrintManagement', component: PrintManagement }, 
+  { path: '/design-management', name: 'DesignManagement', component: DesignManagement },
+  { path: '/shipper-management', name: 'ShipperManagement', component: ShippingManagement },
+  { path: '/resource-properties', name: 'ResourceProperties', component: ResourcePropertyManagement },
+  { path: '/register', name: 'Register', component: RegisterView, meta: { requiresAuth: false } },
 ];
 
 const router = createRouter({
@@ -25,7 +31,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login'];
+  const publicPages = ['/login', '/register'];
   const authRequired = !publicPages.includes(to.path);
   const loggedIn = localStorage.getItem('user');
 

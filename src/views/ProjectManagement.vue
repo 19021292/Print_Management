@@ -5,12 +5,6 @@
       <a-breadcrumb-item>Quản lý dự án</a-breadcrumb-item>
     </a-breadcrumb>
     <div class="actions-bar">
-      <a-input-search
-        placeholder="Tìm kiếm dự án"
-        enter-button
-        @search="handleSearch"
-        style="max-width: 300px;"
-      />
       <a-button type="primary" @click="showCreateModal">Thêm dự án</a-button>
     </div>
     <a-table
@@ -19,21 +13,7 @@
       :pagination="{ pageSize: 10 }"
       rowKey="id"
     >
-      <template #bodyCell="{ column, record }">
-        <span v-if="column.key === 'actions'">
-          <a @click="showEditModal(record)">Sửa</a>
-          <a-divider type="vertical" />
-          <a-popconfirm
-            title="Bạn có chắc chắn muốn xóa dự án này không?"
-            ok-text="Có"
-            cancel-text="Không"
-            @confirm="handleDelete(record.id)"
-          >
-            <a>Xóa</a>
-          </a-popconfirm>
-        </span>
-        <span v-else>{{ record[column.dataIndex] || '-' }}</span>
-      </template>
+     
     </a-table>
     <a-modal
       v-model:visible="isModalVisible"
@@ -71,6 +51,7 @@
 <script>
 import { getAllProjects, createProject } from '@/apis/projectApi';
 import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
 export default {
   name: 'ProjectManagement',
@@ -112,10 +93,6 @@ export default {
           title: 'Trạng thái dự án',
           dataIndex: 'projectStatus',
           key: 'projectStatus',
-        },
-        {
-          title: 'Hành động',
-          key: 'actions',
         },
       ],
       isModalVisible: false,
@@ -172,7 +149,11 @@ export default {
     },
     showEditModal(record) {
       this.isEditing = true;
-      this.formData = { ...record };
+      this.formData = {
+        ...record,
+        startDate: dayjs(record.startDate),
+        expectedEndDate: dayjs(record.expectedEndDate),
+      };
       this.isModalVisible = true;
     },
     async handleOk() {

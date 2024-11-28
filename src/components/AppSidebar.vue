@@ -32,17 +32,38 @@ export default {
         "User": [
           { key: '9', label: 'Quản lý dự án', route: '/project-management' },
           { key: '10', label: 'Quản lý in', route: '/print-management' },
+          { key: '8', label: 'Quản lý tài nguyên', route: '/resources' },
           { key: '11', label: 'Quản lý thiết kế', route: '/design-management' }]
         ,
         "Admin": [
           { key: '6', label: 'Quản lý đội ngũ', route: '/team' },
-          { key: '7', label: 'Quản lý vai trò', route: '/roles' },
+          { key: '7', label: 'Quản lý tài khoản', route: '/roles' },
           { key: '8', label: 'Quản lý tài nguyên', route: '/resources' },
-          { key: '9', label: 'Quản lý dự án', route: '/project-management' }
+          { key: '9', label: 'Quản lý dự án', route: '/project-management' },
+          { key: '11', label: 'Quản lý thiết kế', route: '/design-management' },
+          { key: '10', label: 'Quản lý in', route: '/print-management' },
+          { key: '12', label: 'Quản lý thuộc tính tài nguyên', route: '/resource-properties' },
         ],
-        "Employee": [{ key: '3', label: 'Employee Area', route: '/employee' }],
-        "Designer": [{ key: '4', label: 'Designer Tools', route: '/designer' }],
-        "Shipper": [{ key: '5', label: 'Shipper Zone', route: '/shipper' }],
+        "Employee": [
+          { key: '9', label: 'Quản lý dự án', route: '/project-management' },
+          { key: '8', label: 'Quản lý tài nguyên', route: '/resources' },
+          { key: '5', label: 'Quản lý giao hàng', route: '/shipper-management' },
+           { key: '11', label: 'Quản lý thiết kế', route: '/design-management' },
+
+        ],
+        "Designer": [
+          { key: '8', label: 'Quản lý tài nguyên', route: '/resources' },
+          { key: '10', label: 'Quản lý in', route: '/print-management' },
+          { key: '9', label: 'Quản lý dự án', route: '/project-management' },
+          { key: '11', label: 'Quản lý thiết kế', route: '/design-management' },
+        ],
+        "Shipper": [
+          { key: '5', label: 'Quản lý giao hàng', route: '/shipper-management' },
+          { key: '8', label: 'Quản lý tài nguyên', route: '/resources' },
+          { key: '9', label: 'Quản lý dự án', route: '/project-management' },
+          { key: '11', label: 'Quản lý thiết kế', route: '/design-management' },
+
+        ],
       };
 
       console.log(roleMenuMap[role.trim()]);

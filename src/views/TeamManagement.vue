@@ -5,12 +5,7 @@
       <a-breadcrumb-item>Quản lý đội nhóm</a-breadcrumb-item>
     </a-breadcrumb>
     <div class="actions-bar">
-      <a-input-search
-        placeholder="Tìm kiếm đội nhóm"
-        enter-button
-        @search="handleSearch"
-        style="max-width: 300px;"
-      />
+      
       <a-button type="primary" @click="showCreateModal">Thêm đội nhóm</a-button>
     </div>
     <a-table

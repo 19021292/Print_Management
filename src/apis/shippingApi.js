@@ -2,7 +2,7 @@ import axiosInstance from './axiosConfig';
 
 export const createDelivery = async (deliveryData) => {
   try {
-    const response = await axiosInstance.post('/api/Shipping/Create delivery', deliveryData);
+    const response = await axiosInstance.post('/Shipping/CreateDelivery', deliveryData);
     return response.data;
   } catch (error) {
     console.error('Error creating delivery:', error);
@@ -10,9 +10,19 @@ export const createDelivery = async (deliveryData) => {
   }
 };
 
-export const updateDeliveryStatus = async (statusData) => {
+export const getAllDeliveries = async () => {
   try {
-    const response = await axiosInstance.post('/api/Shipping/Update delivery-status', statusData);
+    const response = await axiosInstance.get('/Shipping/GetAllDeliveries');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all deliveries:', error);
+    throw error;
+  }
+};
+
+export const updateDeliveryStatus = async (deliveryId) => {
+  try {
+    const response = await axiosInstance.post(`/Shipping/UpdateDelivery-status?deliveryId=${deliveryId}`);
     return response.data;
   } catch (error) {
     console.error('Error updating delivery status:', error);

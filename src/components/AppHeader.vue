@@ -43,7 +43,9 @@ export default {
     try {
       const userInfo = await getUserInfo();
       this.user = userInfo;
-      localStorage.setItem('roles', JSON.stringify(userInfo.roles[0]));
+      const userRole = userInfo.roles.length > 1 ? userInfo.roles.find(role => role !== 'User') : userInfo.roles.find(role => role === 'User');
+      console.log(userRole);
+      localStorage.setItem('roles', JSON.stringify(userRole));
     } catch (error) {
       console.error('Failed to fetch user info:', error);
     }

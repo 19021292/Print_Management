@@ -13,6 +13,7 @@
           </a-form-item>
           <a-button type="primary" html-type="submit" block>Đăng nhập</a-button>
         </a-form>
+        <p class="register-link">Chưa có tài khoản? <router-link to="/register">Đăng ký ngay</router-link></p>
       </a-card>
     </div>
   </div>
@@ -22,6 +23,7 @@
 import { loginUser } from '@/apis/authApi';
 import { message } from 'ant-design-vue';
 import { isLoggedIn } from '@/store/authState'; 
+import { getUserInfo } from '@/apis/authApi';
 
 export default {
   name: 'LoginView',
@@ -45,6 +47,16 @@ export default {
           localStorage.setItem('user', JSON.stringify({ username: 'admin', role: 'admin' }));
           localStorage.setItem('accessToken', response.data.accessToken);
           localStorage.setItem('refreshToken', response.data.refreshToken);
+
+          try {
+      const userInfo = await getUserInfo();
+      this.user = userInfo;
+      const userRole = userInfo.roles.length > 1 ? userInfo.roles.find(role => role !== 'User') : userInfo.roles.find(role => role === 'User');
+      console.log(userRole);
+      localStorage.setItem('roles', JSON.stringify(userRole));
+    } catch (error) {
+      console.error('Failed to fetch user info:', error);
+    }
 
           isLoggedIn.value = true;
           this.$router.push('/');
@@ -102,5 +114,10 @@ a-button {
 
 .ant-card-bordered {
   border: 0px solid #f0f0f0;
+}
+
+.register-link {
+  margin-top: 20px;
+  color: #666;
 }
 </style> 

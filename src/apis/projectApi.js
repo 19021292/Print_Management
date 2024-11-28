@@ -40,9 +40,9 @@ export const rejectDesign = async (designId) => {
   }
 };
 
-export const confirmDesignForPrinting = async () => {
+export const confirmDesignForPrinting = async (body) => {
   try {
-    const response = await axiosInstance.post('/Project/ConfirmDesign-for-printing');
+    const response = await axiosInstance.post('/Project/ConfirmDesign-for-printing', { designId: body });
     return response.data;
   } catch (error) {
     console.error('Error confirming design for printing:', error);
@@ -70,6 +70,7 @@ export const createResourceProperty = async (propertyData) => {
   }
 };
 
+// New API for creating resource property detail
 export const createResourcePropertyDetail = async (detailData) => {
   try {
     const response = await axiosInstance.post('/Project/CreateResource-property-detail', detailData);
@@ -79,6 +80,7 @@ export const createResourcePropertyDetail = async (detailData) => {
     throw error;
   }
 };
+
 
 export const createResourceForPrintJob = async (resourceData) => {
   try {
@@ -120,6 +122,16 @@ export const getAllResources = async () => {
   }
 };
 
+export const getAllResourceProperties = async () => {
+  try {
+    const response = await axiosInstance.get('/Project/GetAllResourceProperties');
+    return response.data;
+  } catch (error) {
+    console.error('Error getting all resource properties:', error);
+    throw error;
+  }
+};
+
 export const getAllProjects = async () => {
   try {
     const response = await axiosInstance.get('/Project/all-projects');
@@ -140,5 +152,14 @@ export const getAllDesigns = async () => {
   }
 };
 
+export const getAllPrintJobs = async () => {
+  try {
+    const response = await axiosInstance.get('/Project/print-jobs');
+    return response.data;
+  } catch (error) {
+    console.error('Error getting all print jobs:', error);
+    throw error;
+  }
+};
 // Thêm các hàm khác tương tự cho các endpoint còn lại
 // ... 
