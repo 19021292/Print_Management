@@ -28,7 +28,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("CreateDelivery")]
-        [Authorize]
         public async Task<IActionResult> CreateDeliveryAsync([FromBody] Request_CreateDelivery request)
         {
             var response = await _shippingService.CreateDeliveryAsync(request);
@@ -42,7 +41,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpGet("GetAllDeliveries")]
-        [Authorize]
         public async Task<IActionResult> GetAllDeliveriesAsync()
         {
             var response = await _shippingService.GetAllDeliveriesAsync();
@@ -53,7 +51,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("UpdateDelivery-status")]
-        [Authorize]
         public async Task<IActionResult> DeliveryStatusUpdate(long deliveryId)
         {
             var response = await _shippingService.DeliveryStatusUpdate(deliveryId);

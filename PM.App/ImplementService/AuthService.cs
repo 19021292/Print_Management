@@ -380,10 +380,10 @@ namespace PM.Application.ImplementService
                 {
                     return "Invalidate user.";
                 }
-                if (!currentUser.IsInRole("Admin"))
-                {
-                    return "Only for admin";
-                }
+                //if (!currentUser.IsInRole("Admin"))
+                //{
+                //    return "Only for admin";
+                //}
                 var user = await _baseUserRepository.GetByIdAsync(userId);
                 if(user == null)
                 {
@@ -419,15 +419,15 @@ namespace PM.Application.ImplementService
                     };
                 }
 
-                if (!currentUser.IsInRole("Admin"))
-                {
-                    return new ResponseObject<List<DataResponseUser>>
-                    {
-                        Status = StatusCodes.Status403Forbidden,
-                        Message = "Only administrators can view all users.",
-                        Data = null
-                    };
-                }
+                //if (!currentUser.IsInRole("Admin"))
+                //{
+                //    return new ResponseObject<List<DataResponseUser>>
+                //    {
+                //        Status = StatusCodes.Status403Forbidden,
+                //        Message = "Only administrators can view all users.",
+                //        Data = null
+                //    };
+                //}
 
                 var users = await _baseUserRepository.GetAllAsync();
                 if (users == null || !users.Any())

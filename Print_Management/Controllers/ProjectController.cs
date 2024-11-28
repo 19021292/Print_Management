@@ -31,7 +31,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("CreateProject")]
-        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> CreateProject([FromBody] Request_CreateProject request)
         {
             if (!ModelState.IsValid)
@@ -61,7 +60,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("AddDesign")]
-        [Authorize(Roles = "Designer")]
         public async Task<IActionResult> AddDesign([FromBody] Request_CreateDesign request)
         {
             if (!ModelState.IsValid)
@@ -104,7 +102,6 @@ namespace Print_Management.Controllers
 
 
         [HttpGet("all-designs-belong-to-project/{projectId}")]
-        [Authorize(Roles = "Designer,ProjectLeader,Admin")]
         public async Task<IActionResult> GetAllDesigns(long projectId)
         {
             var response = await _designService.GetAllDesignAsync(projectId);
@@ -129,7 +126,6 @@ namespace Print_Management.Controllers
 
 
         [HttpPost("ApproveDesign/{designId}")]
-        [Authorize]
         public async Task<IActionResult> ApproveDesign(long designId)
         {
             var response = await _designService.ApproveDesignAsync(designId);
@@ -143,7 +139,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("RejectDesign/{designId}")]
-        [Authorize]
         public async Task<IActionResult> RejectDesign(long designId)
         {
             var response = await _designService.RejectDesignAsync(designId);
@@ -157,7 +152,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("ConfirmDesign-for-printing")]
-        [Authorize]
         public async Task<IActionResult> ConfirmDesignForPrintingAsync([FromBody] Request_CreatePrintJob request)
         {
             if (!ModelState.IsValid)
@@ -176,7 +170,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("CreateResources")]
-        [Authorize]
         public async Task<IActionResult> CreateResources([FromBody] Request_CreateResource request)
         {
             if (!ModelState.IsValid)
@@ -197,13 +190,7 @@ namespace Print_Management.Controllers
         [HttpGet("get-all-resources")]
         public async Task<IActionResult> GetAllResources()
         {
-            var currentUser = User;
 
-            var isAdmin = currentUser.IsInRole("Admin");
-            if (!isAdmin)
-            {
-                return Forbid(); 
-            }
             var result = await _resourceManagementService.GetAllResourcesAsync();
 
             if (result.Status == StatusCodes.Status200OK)
@@ -215,7 +202,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("CreateResource-property")]
-        [Authorize]
         public async Task<IActionResult> CreateResourceProperty([FromBody] Request_CreateResourceProperty request)
         {
             if (!ModelState.IsValid)
@@ -258,7 +244,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("CreateResource-property-detail")]
-        [Authorize]
         public async Task<IActionResult> CreateResourcePropertyDetail([FromBody] Request_CreateResourcePropertyDetail request)
         {
             if (!ModelState.IsValid)
@@ -296,7 +281,6 @@ namespace Print_Management.Controllers
         //}
 
         [HttpPost("UsingResource-for-print-job")]
-        [Authorize]
         public async Task<IActionResult> UsingResourceForPrintJob([FromBody] Request_CreateResourceForPrintJob request)
         {
             var response = await _resourceManagementService.UsingResourceForPrintJob(request);
@@ -322,7 +306,6 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("ConfirmFinishing-project")]
-        [Authorize]
         public async Task<IActionResult> ConfirmFinishingProject(long printJobId, long projectId)
         {
             var result = await _projectService.ConfirmFinishingProjectAsync(printJobId, projectId);

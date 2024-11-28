@@ -62,15 +62,15 @@ namespace PM.Application.ImplementService
                     };
                 }
 
-                if (!currentUser.IsInRole("Designer"))
-                {
-                    return new ResponseObject<DataResponseDesign>
-                    {
-                        Status = StatusCodes.Status403Forbidden,
-                        Message = "You must be a designer to add a design.",
-                        Data = null
-                    };
-                }
+                //if (!currentUser.IsInRole("Designer"))
+                //{
+                //    return new ResponseObject<DataResponseDesign>
+                //    {
+                //        Status = StatusCodes.Status403Forbidden,
+                //        Message = "You must be a designer to add a design.",
+                //        Data = null
+                //    };
+                //}
 
                 if (request == null)
                 {
