@@ -174,15 +174,15 @@ namespace PM.Application.ImplementService
                 var leaderId = Convert.ToInt64(userId);
                 var leader = await _userRepository.GetUserById(leaderId);
 
-                if (!leaderId.Equals(project.EmployeeId) && !currentUser.IsInRole("Admin"))
-                {
-                    return new ResponseObject<DataResponseProject>
-                    {
-                        Status = StatusCodes.Status403Forbidden,
-                        Message = "Only project leaders and admins.",
-                        Data = null
-                    };
-                }
+                //if (!leaderId.Equals(project.EmployeeId) && !currentUser.IsInRole("Admin"))
+                //{
+                //    return new ResponseObject<DataResponseProject>
+                //    {
+                //        Status = StatusCodes.Status403Forbidden,
+                //        Message = "Only project leaders and admins.",
+                //        Data = null
+                //    };
+                //}
 
                 if (project == null)
                 {
