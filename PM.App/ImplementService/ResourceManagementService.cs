@@ -278,15 +278,15 @@ namespace PM.Application.ImplementService
                     };
                 }
 
-                if (!currentUser.IsInRole("Admin"))
-                {
-                    return new ResponseObject<DataResponseResourcePropertyDetail>
-                    {
-                        Status = StatusCodes.Status401Unauthorized,
-                        Message = "Only admins have rights.",
-                        Data = null
-                    };
-                }
+                //if (!currentUser.IsInRole("Admin"))
+                //{
+                //    return new ResponseObject<DataResponseResourcePropertyDetail>
+                //    {
+                //        Status = StatusCodes.Status401Unauthorized,
+                //        Message = "Only admins have rights.",
+                //        Data = null
+                //    };
+                //}
 
                 var resourcePropertyDetail = new ResourcePropertyDetail
                 {
@@ -371,15 +371,15 @@ namespace PM.Application.ImplementService
                     };
                 }
 
-                if (!leaderId.Equals(project.EmployeeId))
-                {
-                    return new ResponseObject<DataResponseResourceForPrintJob>
-                    {
-                        Status = StatusCodes.Status403Forbidden,
-                        Message = "Only project leader can create resources to printjob.",
-                        Data = null
-                    };
-                }
+                //if (!leaderId.Equals(project.EmployeeId))
+                //{
+                //    return new ResponseObject<DataResponseResourceForPrintJob>
+                //    {
+                //        Status = StatusCodes.Status403Forbidden,
+                //        Message = "Only project leader can create resources to printjob.",
+                //        Data = null
+                //    };
+                //}
 
                 var resourceForPrintJob = new ResourceForPrintJob
                 {

@@ -115,15 +115,15 @@ namespace PM.Application.ImplementService
                 var leaderId = Convert.ToInt64(userId);
                 var leader = await _userRepository.GetUserById(leaderId);
 
-                if (!leaderId.Equals(project.EmployeeId))
-                {
-                    return new ResponseObject<DataResponsePrintjob>
-                    {
-                        Status = StatusCodes.Status403Forbidden,
-                        Message = "Only project leaders can confirm designs to printjob.",
-                        Data = null
-                    };
-                }
+                //if (!leaderId.Equals(project.EmployeeId))
+                //{
+                //    return new ResponseObject<DataResponsePrintjob>
+                //    {
+                //        Status = StatusCodes.Status403Forbidden,
+                //        Message = "Only project leaders can confirm designs to printjob.",
+                //        Data = null
+                //    };
+                //}
 
                 if (design == null)
                 {
