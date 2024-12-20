@@ -47,7 +47,7 @@
           <a-input-number v-model:value="formData.numberOfMember" />
         </a-form-item>
         <a-form-item label="ID Quản lý" name="managerId" style="margin-bottom: 10px;">
-          <a-input-number v-model:value="formData.managerId" />
+          <a-input v-model:value="formData.managerId" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { getAllTeams, createTeam, updateTeam, deleteTeam, searchTeams } from '@/apis/teamApi';
+import { getAllTeams, createTeam, updateTeam, deleteTeam } from '@/apis/teamApi';
 import { message } from 'ant-design-vue';
 
 export default {
@@ -129,14 +129,14 @@ export default {
         message.error(error.message || 'Có lỗi xảy ra khi tải đội nhóm!');
       }
     },
-    async handleSearch(query) {
-      try {
-        const data = await searchTeams(query);
-        this.teams = Array.isArray(data) ? data : [];
-      } catch (error) {
-        message.error(error.message || 'Có lỗi xảy ra khi tìm kiếm đội nhóm!');
-      }
-    },
+    // async handleSearch(query) {
+    //   try {
+    //     const data = await searchTeams(query);
+    //     this.teams = Array.isArray(data) ? data : [];
+    //   } catch (error) {
+    //     message.error(error.message || 'Có lỗi xảy ra khi tìm kiếm đội nhóm!');
+    //   }
+    // },
     showCreateModal() {
       this.isEditing = false;
       this.formData = { id: null, name: '', description: '', numberOfMember: 0, createTime: new Date().toISOString(), updateTime: new Date().toISOString(), managerId: 0 };

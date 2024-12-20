@@ -2,9 +2,9 @@
   <header>
     <a-layout-header style="background: #fff; padding: 0">
       <div class="header-content">
-        <img style="width: 160px; objectFit: contain" src="https://cdn.skyltmax.se/vite/assets/nl-NL-764cbd98.svg" alt="Logo" class="logo" />
+        <!-- <img style="width: 160px; objectFit: contain" src="https://cdn.skyltmax.se/vite/assets/nl-NL-764cbd98.svg" alt="Logo" class="logo" /> -->
         <div class="user-info">
-          <span>Xin chào, {{ user ? user.userName : 'User' }}</span>
+          <span>Xin chào, {{ user ? user.userName : 'User'}} ID: {{ user ? user.id : ''}}</span>
           <a-dropdown>
             <a class="ant-dropdown-link" @click.prevent>
               <span>▼</span>

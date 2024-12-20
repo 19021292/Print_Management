@@ -15,7 +15,19 @@
     >
       <template #bodyCell="{ column, record }">
         <span v-if="column.key === 'actions'">
-          <a @click="updateDeliveryStatus(record.id)">Cập nhật trạng thái</a>
+          <div><a @click="updateDeliveryStatus(record.id)">Cập nhật trạng thái</a></div>
+          <!-- <div><a @click="showEditModal(record)">Sửa</a>
+            <a-divider type="vertical" />
+          <a-popconfirm
+            title="Bạn có chắc chắn muốn xóa tài nguyên này không?"
+            ok-text="Có"
+            cancel-text="Không"
+            @confirm="handleDelete(record.id)"
+          >
+            <a>Xóa</a>
+          </a-popconfirm>
+        </div> -->
+          
         </span>
         <span v-else>{{ record[column.dataIndex] || '-' }}</span>
       </template>
@@ -27,7 +39,7 @@
       @cancel="handleCancel"
     >
       <a-form :model="formData" :rules="rules" ref="deliveryForm" layout="vertical">
-        <a-form-item label="Phương thức giao hàng" name="shippingMethodId" style="margin-bottom: 10px;">
+        <a-form-item label="Phương thức giao hàng (1: Chuyển phát nhanh, 2: Chuyển phát qua bưu điện)" name="shippingMethodId" style="margin-bottom: 10px;">
           <a-input-number v-model:value="formData.shippingMethodId" style="width: 100%;" />
         </a-form-item>
         <a-form-item label="ID Khách hàng" name="customerId" style="margin-bottom: 10px;">

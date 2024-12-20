@@ -10,6 +10,16 @@ export const registerUser = async (userData) => {
   }
 };
 
+export const confirmRegister = async (confirmCode) => {
+  try {
+    const response = await axiosInstance.post(`/auth/confirmRegisterAccount?confirmCode=${confirmCode}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error confirming user registration:', error);
+    throw error;
+  }
+};
+
 export const loginUser = async (credentials) => {
   try {
     const response = await axiosInstance.post('/Auth/Login', credentials);
@@ -52,11 +62,15 @@ export const changePassword = async (data) => {
 
 export const addRolesToUser = async (userId, roles) => {
   try {
-    const response = await axiosInstance.post(`/api/Auth/AddRolesToUser/${userId}`, roles);
+    const response = await axiosInstance.post(`/api/Auth/AddRolesToUser`, {
+      userId: userId,
+      roles: roles
+    });
     return response.data;
   } catch (error) {
     console.error('Error adding roles to user:', error);
     throw error;
   }
 };
+
 

@@ -10,6 +10,26 @@ export const createProject = async (projectData) => {
   }
 };
 
+export const updateProject = async (id, projectData) => {
+  try {
+    const response = await axiosInstance.put(`/Project/UpdateProject/${id}`, projectData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating project:', error);
+    throw error;
+  }
+};
+
+export const deleteProject = async (id) => {
+  try {
+    const response = await axiosInstance.delete(`/Project/DeleteProject/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    throw error;
+  }
+};
+
 export const addDesign = async (designData) => {
   try {
     const response = await axiosInstance.post('/Project/AddDesign', designData);
@@ -30,6 +50,26 @@ export const approveDesign = async (designId) => {
   }
 };
 
+export const updateDesign = async (designId, designData) => {
+  try {
+    const response = await axiosInstance.put(`/Project/UpdateDesign/${designId}`, designData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating design:', error);
+    throw error;
+  }
+};
+
+export const deleteDesign = async (designId) => {
+  try {
+    const response = await axiosInstance.delete(`/Project/DeleteDesign/${designId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting design:', error);
+    throw error;
+  }
+};
+
 export const rejectDesign = async (designId) => {
   try {
     const response = await axiosInstance.post(`/Project/RejectDesign/${designId}`);
@@ -42,13 +82,35 @@ export const rejectDesign = async (designId) => {
 
 export const confirmDesignForPrinting = async (body) => {
   try {
+    console.log('Sending request payload:', { designId: body });
     const response = await axiosInstance.post('/Project/ConfirmDesign-for-printing', { designId: body });
     return response.data;
   } catch (error) {
-    console.error('Error confirming design for printing:', error);
+    console.error('Error confirming design for printing:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
+
+export const updatePrintJob = async (printJobId, printJobData) => {
+  try {
+    const response = await axiosInstance.put(`/Project/UpdatePrintJob/${printJobId}`, printJobData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating print job:', error);
+    throw error;
+  }
+};
+
+export const deletePrintJob = async (printJobId) => {
+  try {
+    const response = await axiosInstance.delete(`/Project/DeletePrintJob/${printJobId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting print job:', error);
+    throw error;
+  }
+};
+
 
 export const createResources = async (resourceData) => {
   try {
@@ -81,6 +143,15 @@ export const createResourcePropertyDetail = async (detailData) => {
   }
 };
 
+export const getAllResourcePropertyDetails = async () => {
+  try {
+    const response = await axiosInstance.get('/Project/GetAllResourcePropertyDetails');
+    return response.data.data; // Assuming the API response has a "data" field
+  } catch (error) {
+    console.error('Error getting resource property details:', error);
+    throw error;
+  }
+};
 
 export const createResourceForPrintJob = async (resourceData) => {
   try {
@@ -102,9 +173,9 @@ export const usingResourceForPrintJob = async (resourceData) => {
   }
 };
 
-export const confirmFinishingProject = async () => {
+export const confirmFinishingProject = async (data) => {
   try {
-    const response = await axiosInstance.post('/Project/ConfirmFinishing-project');
+    const response = await axiosInstance.post('/Project/ConfirmFinishing-project', data);
     return response.data;
   } catch (error) {
     console.error('Error confirming finishing project:', error);
@@ -161,5 +232,16 @@ export const getAllPrintJobs = async () => {
     throw error;
   }
 };
+
+export const getAllCustomers = async () => {
+  try {
+    const response = await axiosInstance.get('/Project/all-customers');
+    return response.data;
+  } catch (error) {
+    console.error('Error getting all customers:', error);
+    throw error;
+  }
+};
+
 // Thêm các hàm khác tương tự cho các endpoint còn lại
 // ... 

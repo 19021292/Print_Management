@@ -54,7 +54,7 @@ export default {
       try {
         const response = await registerUser(this.formData);
         if (response) {
-          message.success('Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.');
+          message.success('Đăng ký thành công! Vui lòng kiểm tra email để xem thông tin tài khoản.');
           this.$router.push('/login');
         } else {
           message.error(response.message || 'Đăng ký thất bại!');

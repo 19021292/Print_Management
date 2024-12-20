@@ -30,3 +30,13 @@ export const getAllResourceProperties = async () => {
       throw error;
     }
   };
+
+  export const getAllResourcePropertyDetails = async () => {
+    try {
+        const response = await axiosInstance.get('/Project/GetAllResourcePropertyDetails');
+        return response.data.data;
+    } catch (error) {
+        console.error('Error getting all resource property details:', error);
+        throw error;
+    }
+};

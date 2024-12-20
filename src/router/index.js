@@ -9,7 +9,9 @@ import PrintManagement from '@/views/PrintManagement.vue';
 import DesignManagement from '@/views/DesignManagement.vue';
 import ShippingManagement from '@/views/ShippingManagement.vue';
 import ResourcePropertyManagement from '@/views/ResourcePropertyManagement.vue';
+import ResourcePropertyDetailsManagement from '@/views/ResourcePropertyDetailsManagement.vue';
 import RegisterView from '@/views/RegisterView.vue';
+import CustomerManagement from '@/views/Customer.vue';
 
 const routes = [
   { path: '/login', name: 'Login', component: LoginView },
@@ -17,12 +19,14 @@ const routes = [
   { path: '/team', name: 'Team', component: TeamManagement },
   { path: '/roles', name: 'Roles', component: RoleManagement },
   { path: '/resources', name: 'Resources', component: ResourceManagement },
-  { path: '/project-management', name: 'ProjectManagement', component: ProjectManagement }, 
-  { path: '/print-management', name: 'PrintManagement', component: PrintManagement }, 
+  { path: '/project-management', name: 'ProjectManagement', component: ProjectManagement },
+  { path: '/print-management', name: 'PrintManagement', component: PrintManagement },
   { path: '/design-management', name: 'DesignManagement', component: DesignManagement },
   { path: '/shipper-management', name: 'ShipperManagement', component: ShippingManagement },
   { path: '/resource-properties', name: 'ResourceProperties', component: ResourcePropertyManagement },
+  { path: '/resource-property-details', name: 'ResourcePropertyDetails', component: ResourcePropertyDetailsManagement },
   { path: '/register', name: 'Register', component: RegisterView, meta: { requiresAuth: false } },
+  { path: '/customer', name: 'CustomerManagement', component: CustomerManagement },
 ];
 
 const router = createRouter({
@@ -35,7 +39,12 @@ router.beforeEach((to, from, next) => {
   const authRequired = !publicPages.includes(to.path);
   const loggedIn = localStorage.getItem('user');
 
+  console.log('Checking authentication...');
+  console.log('Auth required:', authRequired);
+  console.log('Logged in:', loggedIn);
+
   if (authRequired && !loggedIn) {
+    console.log('Redirecting to login...');
     return next('/login');
   }
 

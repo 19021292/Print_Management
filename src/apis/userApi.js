@@ -26,6 +26,8 @@ export const getAllUsersFromAllUsersApi = async () => {
   }
 };
 
+
+
 export const getUserProfile = async () => {
   try {
     const response = await axiosInstance.get('/user/profile');
@@ -67,39 +69,39 @@ export const createUser = async (userData) => {
 
 export const updateUser = async (id, userData) => {
   try {
-    const response = await axiosInstance.put(`/user/${id}`, userData);
-    if (!response.data.success) {
+    const response = await axiosInstance.put(`/Auth/UpdateUser/update-user/${id}`, userData);
+    if (!response.data) {
       throw new Error(response.data.message || 'Error updating user');
     }
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error('Error updating user:', error);
-    throw error;
+    throw error; // Re-throwing the error will allow the calling code to handle it.
   }
 };
 
+// Delete user function
 export const deleteUser = async (id) => {
   try {
-    const response = await axiosInstance.delete(`/user/${id}`);
-    if (!response.data.success) {
+    const response = await axiosInstance.delete(`/Auth/DeleteUser/delete-user/${id}`);  
+    if (!response.data) {
       throw new Error(response.data.message || 'Error deleting user');
     }
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error('Error deleting user:', error);
-    throw error;
+    throw error; // Re-throwing the error allows handling in the calling code
   }
 };
 
 export const addRolesToUser = async (userId, roles) => {
   try {
-    const response = await axiosInstance.post(`/Auth/AddRolesToUser/${userId}`, { roles });
-    if (!response.data.success) {
-      throw new Error(response.data.message || 'Error adding roles to user');
-    }
-    return response.data.data;
+    const response = await axiosInstance.post(`/Auth/AddRolesToUser/${userId}`, roles);
+    return response.data; // Trả về toàn bộ phản hồi
   } catch (error) {
     console.error('Error adding roles to user:', error);
     throw error;
   }
 };
+
+

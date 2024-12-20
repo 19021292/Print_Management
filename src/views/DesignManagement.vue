@@ -1,12 +1,36 @@
 <template>
   <div class="design-management">
-  <a-breadcrumb style="margin: 16px 0">
+    <a-breadcrumb style="margin: 16px 0">
       <a-breadcrumb-item>Trang chủ</a-breadcrumb-item>
       <a-breadcrumb-item>Quản lý thiết kế</a-breadcrumb-item>
     </a-breadcrumb>
-      <div class="actions-bar">
-        <a-button type="primary" @click="showCreateModal">Thêm thiết kế</a-button>
-      </div>
+    <div class="actions-bar">
+      <a-button type="primary" @click="showCreateModal">Thêm thiết kế</a-button>
+    </div>
+    <a-table
+      :columns="columns"
+      :dataSource="designs"
+      :pagination="{ pageSize: 10 }"
+      rowKey="id"
+    >
+    <template #bodyCell="{ column, record }">
+        <span v-if="column.key === 'actions'">
+          <a @click="showEditModal(record)">Sửa</a>
+          <a-divider type="vertical" />
+          <a-popconfirm
+            title="Bạn có chắc chắn muốn xóa thiết kế này không?"
+            ok-text="Có"
+            cancel-text="Không"
+            @confirm="handleDelete(record.id)"
+          >
+            <a>Xóa</a>
+          </a-popconfirm>
+        </span>
+        <span v-else>{{ record[column.dataIndex] || '-' }}</span>
+      </template>
+    </a-table>
+
+    <!-- Add Design Modal -->
     <a-modal
       v-model:visible="isModalVisible"
       title="Thêm Thiết kế"
@@ -35,28 +59,44 @@
       </a-form>
     </a-modal>
 
-    <a-table :dataSource="designs" :columns="columns" rowKey="id" class="design-table">
-      <template #bodyCell="{ column, record }">
-        <span v-if="column.key === 'action'">
-          <a-button
-            type="primary"
-            @click="approveDesign(record.id)"
-            :disabled="record.designStatus === 'Approved'"
+    <!-- Edit Design Modal -->
+    <a-modal
+      v-model:visible="isEditModalVisible"
+      title="Sửa Thiết kế"
+      @ok="handleUpdate"
+      @cancel="handleCancelEdit"
+    >
+      <a-form :model="editDesign" :rules="rules" ref="editDesignForm" layout="vertical">
+        <a-form-item label="Dự án" name="projectId" style="margin-bottom: 10px;">
+          <a-select v-model:value="editDesign.projectId" placeholder="Chọn một dự án" required>
+            <a-select-option v-for="project in projects" :key="project.id" :value="project.id">
+              {{ project.projectName }}
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item label="ID Nhà thiết kế" name="designerId" style="margin-bottom: 10px;">
+          <a-input v-model:value="editDesign.designerId" placeholder="Nhập ID nhà thiết kế" required />
+        </a-form-item>
+        <a-form-item label="Tệp Thiết kế" name="filePath" style="margin-bottom: 10px;">
+          <a-upload
+            :before-upload="handleFileUpload"
+            :show-upload-list="false"
           >
-            Chấp nhận
-          </a-button>
-        </span>
-        <span v-else>{{ record[column.dataIndex] || '-' }}</span>
-      </template>
-    </a-table>
+            <a-button icon="upload">Nhấn để Tải lên</a-button>
+          </a-upload>
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
   </div>
 </template>
 
 <script>
-import { getAllDesigns, addDesign, approveDesign } from '@/apis/projectApi';
+import { getAllDesigns, addDesign, approveDesign, updateDesign, deleteDesign } from '@/apis/projectApi';
 import { getAllProjects } from '@/apis/projectApi';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; 
 import { storage } from '@/firebaseConfig';
+import { message } from 'ant-design-vue';
 
 export default {
   name: 'DesignManagement',
@@ -65,6 +105,11 @@ export default {
       designs: [],
       projects: [],
       newDesign: {
+        projectId: null,
+        designerId: '',
+        filePath: '',
+      },
+      editDesign: {
         projectId: null,
         designerId: '',
         filePath: '',
@@ -101,17 +146,18 @@ export default {
           key: 'approverId',
         },
         {
-          title: 'ID',
+          title: 'ID Thiết kế',
           dataIndex: 'id',
           key: 'id',
         },
         {
           title: 'Hành động',
-          key: 'action',
-          scopedSlots: { customRender: 'action' },
+          key: 'actions',
+          scopedSlots: { customRender: 'actions' },
         },
       ],
       isModalVisible: false,
+      isEditModalVisible: false,
       rules: {
         projectId: [{ required: true, message: 'Vui lòng chọn dự án!' }],
         designerId: [{ required: true, message: 'Vui lòng nhập ID nhà thiết kế!' }],
@@ -139,25 +185,25 @@ export default {
         const snapshot = await uploadBytes(storageRef, file);
         const filePath = await getDownloadURL(snapshot.ref);
         this.newDesign.filePath = filePath;
-        return false; // Ngăn chặn hành vi tải lên mặc định
+        return false;
       } catch (error) {
         console.error('Lỗi khi tải lên tệp:', error);
         return false;
       }
     },
-   async submitDesign() {
-     try {
-       console.log('Submitting design:', this.newDesign);
-       await addDesign(this.newDesign);
-       this.fetchDesigns();
-     } catch (error) {
-       console.error('Lỗi khi thêm thiết kế:', error);
-     }
-   },
+    async submitDesign() {
+      try {
+        console.log('Submitting design:', this.newDesign);
+        await addDesign(this.newDesign);
+        this.fetchDesigns();
+      } catch (error) {
+        console.error('Lỗi khi thêm thiết kế:', error);
+      }
+    },
     async approveDesign(designId) {
       try {
         await approveDesign(designId);
-        this.fetchDesigns(); 
+        this.fetchDesigns();
       } catch (error) {
         console.error('Lỗi khi chấp nhận thiết kế:', error);
       }
@@ -170,22 +216,34 @@ export default {
         filePath: '',
       };
     },
-    async handleOk() {
-      this.$refs.designForm.validate().then(async () => {
-        try {
-          console.log('Submitting design:', this.newDesign);
-          await addDesign(this.newDesign);
-          this.fetchDesigns();
-          this.isModalVisible = false;
-        } catch (error) {
-          console.error('Lỗi khi thêm thiết kế:', error);
-        }
-      }).catch(() => {
-        console.error('Vui lòng điền đầy đủ thông tin!');
-      });
+    showEditModal(record) {
+      this.isEditModalVisible = true;
+      this.editDesign = { ...record };
+    },
+    async handleUpdate() {
+      try {
+        await updateDesign(this.editDesign.id, this.editDesign);
+        this.fetchDesigns();
+        this.isEditModalVisible = false;
+        message.success('Thiết kế đã được cập nhật thành công!');
+      } catch (error) {
+        console.error('Lỗi khi cập nhật thiết kế:', error);
+      }
+    },
+    async handleDelete(designId) {
+      try {
+        await deleteDesign(designId);
+        this.fetchDesigns();
+        message.success('Thiết kế đã được xóa thành công!');
+      } catch (error) {
+        console.error('Lỗi khi xóa thiết kế:', error);
+      }
     },
     handleCancel() {
       this.isModalVisible = false;
+    },
+    handleCancelEdit() {
+      this.isEditModalVisible = false;
     },
   },
   mounted() {
@@ -205,4 +263,4 @@ export default {
   justify-content: space-between;
   margin-bottom: 16px;
 }
-</style> 
+</style>

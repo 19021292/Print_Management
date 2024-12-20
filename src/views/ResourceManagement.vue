@@ -42,7 +42,7 @@
         <a-form-item label="Tên tài nguyên" name="resourceName" style="margin-bottom: 10px;">
           <a-input v-model:value="formData.resourceName" />
         </a-form-item>
-        <a-form-item label="Hình ảnh" name="image" style="margin-bottom: 10px;">
+        <!-- <a-form-item label="Hình ảnh" name="image" style="margin-bottom: 10px;">
           <a-upload
             name="file"
             :customRequest="handleCustomRequest"
@@ -55,14 +55,14 @@
             </div>
           </a-upload>
           <img v-if="formData.image" :src="formData.image" alt="Image" style="width: 100px; margin-top: 8px;" />
-        </a-form-item>
-        <a-form-item label="Loại tài nguyên" name="resourceType" style="margin-bottom: 10px;">
+        </a-form-item> -->
+        <a-form-item label="Loại tài nguyên (0: MayIn, 1: Giay, 2: Muc)" name="resourceType" style="margin-bottom: 10px;">
           <a-input-number v-model:value="formData.resourceType" />
         </a-form-item>
         <a-form-item label="Số lượng có sẵn" name="availableQuantity" style="margin-bottom: 10px;">
           <a-input-number v-model:value="formData.availableQuantity" />
         </a-form-item>
-        <a-form-item label="Trạng thái tài nguyên" name="resourceStatus" style="margin-bottom: 10px;">
+        <a-form-item label="Trạng thái tài nguyên (0: SanSangSuDung, 1: CanBaoTri, 2: CanNhapThem)" name="resourceStatus" style="margin-bottom: 10px;"> 
           <a-input-number v-model:value="formData.resourceStatus" />
         </a-form-item>
       </a-form>
@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import { getAllResources, createResources, updateResource, deleteResource, searchResources } from '@/apis/projectApi';
+import { getAllResources, createResources} from '@/apis/projectApi';
 import { uploadImage } from '@/apis/uploadApi';
 import { message } from 'ant-design-vue';
 
@@ -87,10 +87,15 @@ export default {
           key: 'resourceName',
         },
         {
-          title: 'Hình ảnh',
-          dataIndex: 'image',
-          key: 'image',
+          title: 'ID',
+          dataIndex: 'id',
+          key: 'id',
         },
+        // {
+        //   title: 'Hình ảnh',
+        //   dataIndex: 'image',
+        //   key: 'image',
+        // },
         {
           title: 'Loại tài nguyên',
           dataIndex: 'resourceType',
@@ -106,10 +111,10 @@ export default {
           dataIndex: 'resourceStatus',
           key: 'resourceStatus',
         },
-        // {
-        //   title: 'Hành động',
-        //   key: 'actions',
-        // },
+        {
+          title: 'Hành động',
+          key: 'actions',
+        },
       ],
       isModalVisible: false,
       formData: {
@@ -124,9 +129,9 @@ export default {
       rules: {
         resourceName: [{ required: true, message: 'Vui lòng nhập tên tài nguyên!' }],
         image: [{ required: true, message: 'Vui lòng tải lên hình ảnh!' }],
-        resourceType: [{ required: true, message: 'Vui lòng nhập loại tài nguyên!' }],
+        resourceType: [{ required: true, message: 'Vui lòng nhập loại tài nguyên! (0: MayIn, 1: Giay, 2: Muc)'}],
         availableQuantity: [{ required: true, message: 'Vui lòng nhập số lượng có sẵn!' }],
-        resourceStatus: [{ required: true, message: 'Vui lòng nhập trạng thái tài nguyên!' }],
+        resourceStatus: [{ required: true, message: 'Vui lòng nhập trạng thái tài nguyên! (0: SanSangSuDung, 1: CanBaoTri, 2: CanNhapThem)'}],
       },
     };
   },
@@ -148,14 +153,14 @@ export default {
         message.error(error.message || 'Có lỗi xảy ra khi tải tài nguyên!');
       }
     },
-    async handleSearch(query) {
-      try {
-        const data = await searchResources(query);
-        this.resources = data;
-      } catch (error) {
-        message.error(error.message || 'Có lỗi xảy ra khi tìm kiếm tài nguyên!');
-      }
-    },
+    // async handleSearch(query) {
+    //   try {
+    //     const data = await searchResources(query);
+    //     this.resources = data;
+    //   } catch (error) {
+    //     message.error(error.message || 'Có lỗi xảy ra khi tìm kiếm tài nguyên!');
+    //   }
+    // },
     showCreateModal() {
       this.isEditing = false;
       this.formData = { id: null, resourceName: '', image: '', resourceType: 0, availableQuantity: 0, resourceStatus: 0 };
@@ -178,7 +183,7 @@ export default {
           };
 
           if (this.isEditing) {
-            await updateResource(this.formData.id, payload);
+            // await updateResource(this.formData.id, payload);
             message.success('Cập nhật tài nguyên thành công!');
           } else {
             await createResources(payload);
@@ -198,8 +203,8 @@ export default {
     },
     async handleDelete(id) {
       try {
-        await deleteResource(id);
-        message.success('Xóa tài nguyên thành công!');
+        // await deleteResource(id);
+        message.success('Xóa tài nguyên thành công!' + id);
         this.fetchResources();
       } catch (error) {
         message.error(error.message || 'Có lỗi xảy ra!');
