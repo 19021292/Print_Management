@@ -16,5 +16,9 @@ namespace PM.Application.InterfaceService
         Task<ResponseObject<List<DataResponseDesign>>> GetAllDesignAsync(long projectId);
         Task<ResponseObject<DataResponseDesign>> ApproveDesignAsync(long designId);
         Task<ResponseObject<DataResponseDesign>> RejectDesignAsync(long designId);
+
+        Task<ResponseObject<DataResponseDesign>> UpdateDesignAsync(long designId, Request_CreateDesign request);
+
+        Task<ResponseObject<DataResponseDesign>> DeleteDesignAsync(long designId);
     }
 }

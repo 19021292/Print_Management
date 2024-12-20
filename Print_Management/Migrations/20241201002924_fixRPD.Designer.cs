@@ -12,8 +12,8 @@ using PM.Infrastructure.DataContext;
 namespace Print_Management.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241122235931_v3")]
-    partial class v3
+    [Migration("20241201002924_fixRPD")]
+    partial class fixRPD
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -397,10 +397,6 @@ namespace Print_Management.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");

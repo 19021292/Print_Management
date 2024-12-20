@@ -14,5 +14,9 @@ namespace PM.Application.InterfaceService
         Task<ResponseObject<DataResponsePrintjob>> ConfirmDesignForPrintingAsync(Request_CreatePrintJob request);
 
         Task<ResponseObject<List<DataResponsePrintjob>>> GetAllPrintJobsAsync();
+
+        Task<ResponseObject<DataResponsePrintjob>> DeletePrintJobAsync(long printJobId);
+
+        Task<ResponseObject<DataResponsePrintjob>> UpdatePrintJobAsync(long id, Request_CreatePrintJob updateRequest);
     }
 }

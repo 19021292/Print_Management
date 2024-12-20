@@ -11,7 +11,6 @@ namespace PM.Domain.Entities
         public long PropertyId { get; set; }
         public virtual ResourceProperty? Property { get; set; }
         public string PropertyDetailName { get; set; }
-        public string Image { get; set; }
         public int Price { get; set; }
         public int Quantity { get; set; }
     }

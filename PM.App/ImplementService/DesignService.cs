@@ -188,6 +188,89 @@ namespace PM.Application.ImplementService
             }
         }
 
+        public async Task<ResponseObject<DataResponseDesign>> UpdateDesignAsync(long designId, Request_CreateDesign request)
+        {
+            try
+            {
+                var design = await _designRepository.GetByIdAsync(designId);
+                if (design == null)
+                {
+                    return new ResponseObject<DataResponseDesign>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "Design not found.",
+                        Data = null
+                    };
+                }
+
+                // Update design properties
+                design.ProjectId = request.ProjectId;
+                design.DesignerId = request.DesignerId;
+                design.FilePath = request.FilePath;
+
+                await _designRepository.UpdateAsync(design);
+
+                var response = new DataResponseDesign
+                {
+                    ProjectId = design.ProjectId,
+                    DesignerId = design.DesignerId,
+                    FilePath = design.FilePath,
+                };
+
+                return new ResponseObject<DataResponseDesign>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Design is updated successfully.",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponseDesign>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ResponseObject<DataResponseDesign>> DeleteDesignAsync(long designId)
+        {
+            try
+            {
+                var design = await _designRepository.GetByIdAsync(designId);
+                if (design == null)
+                {
+                    return new ResponseObject<DataResponseDesign>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "Design not found.",
+                        Data = null
+                    };
+                }
+
+                await _designRepository.DeleteAsync(designId);
+
+                return new ResponseObject<DataResponseDesign>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Design is deleted successfully.",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponseDesign>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+
         public async Task<ResponseObject<List<DataResponseDesign>>> GetAllDesignAsync(long projectId)
         {
             try

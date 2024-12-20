@@ -140,7 +140,7 @@ namespace PM.Application.ImplementService
             }
         }
 
-        public async Task<ResponseObject<DataResponseProject>> ConfirmFinishingProjectAsync(long PrintJobId, long ProjectId)
+        public async Task<ResponseObject<DataResponseFinishingProject>> ConfirmFinishingProjectAsync(Request_FinishingProject request)
         {
             try
             {
@@ -148,7 +148,7 @@ namespace PM.Application.ImplementService
 
                 if (!currentUser.Identity.IsAuthenticated)
                 {
-                    return new ResponseObject<DataResponseProject>
+                    return new ResponseObject<DataResponseFinishingProject>
                     {
                         Status = StatusCodes.Status401Unauthorized,
                         Message = "Unauthorized user.",
@@ -168,8 +168,10 @@ namespace PM.Application.ImplementService
                     }
                 }
 
-                var project = await _projectRepository.GetByIdAsync(ProjectId);
-                var printJob = await _printjobRepository.GetByIdAsync(PrintJobId);
+
+
+                var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+                var printJob = await _printjobRepository.GetByIdAsync(request.PrintJobId);
 
                 var leaderId = Convert.ToInt64(userId);
                 var leader = await _userRepository.GetUserById(leaderId);
@@ -186,7 +188,7 @@ namespace PM.Application.ImplementService
 
                 if (project == null)
                 {
-                    return new ResponseObject<DataResponseProject>
+                    return new ResponseObject<DataResponseFinishingProject>
                     {
                         Status = StatusCodes.Status404NotFound,
                         Message = "Project not found.",
@@ -196,7 +198,7 @@ namespace PM.Application.ImplementService
 
                 if (printJob == null)
                 {
-                    return new ResponseObject<DataResponseProject>
+                    return new ResponseObject<DataResponseFinishingProject>
                     {
                         Status = StatusCodes.Status404NotFound,
                         Message = "Print job not found.",
@@ -210,15 +212,10 @@ namespace PM.Application.ImplementService
                 await _printjobRepository.UpdateAsync(printJob);
                 await _projectRepository.UpdateAsync(project);
 
-                var response = new DataResponseProject
+                var response = new DataResponseFinishingProject
                 {
-                    ProjectName = project.ProjectName,
-                    RequestDescriptionFromCustomer = project.RequestDescriptionFromCustomer,
-                    StartDate = project.StartDate,
-                    ExpectedEndDate = project.ExpectedEndDate,
-                    EmployeeId = project.EmployeeId,
-                    CustomerId = project.CustomerId,
-                    ProjectStatus = project.ProjectStatus.ToString(),
+                    ProjectId = project.Id,
+                    PrintJobId = printJob.Id
                 };
 
                 ConfirmEmail confirmEmail = new ConfirmEmail
@@ -235,7 +232,7 @@ namespace PM.Application.ImplementService
                 var message = new EmailMessage(new string[] { Customer.Email }, "Notification: ", $"{confirmEmail.ConfirmCode}");
                 var responseMessage = _emailService.SendEmail(message);
 
-                return new ResponseObject<DataResponseProject>
+                return new ResponseObject<DataResponseFinishingProject>
                 {
                     Status = StatusCodes.Status201Created,
                     Message = "Print job is completed and the project is fisnished. Email is sent to customer.",
@@ -244,7 +241,7 @@ namespace PM.Application.ImplementService
             }
             catch (Exception ex)
             {
-                return new ResponseObject<DataResponseProject>
+                return new ResponseObject<DataResponseFinishingProject>
                 {
                     Status = StatusCodes.Status500InternalServerError,
                     Message = ex.Message,
@@ -299,10 +296,144 @@ namespace PM.Application.ImplementService
             }
         }
 
+        public async Task<ResponseObject<List<DataResponseCustomer>>> GetAllCustomersAsync()
+        {
+            try
+            {
+                var customers = await _customerRepository.GetAllAsync();
+
+                if (customers == null || !customers.Any())
+                {
+                    return new ResponseObject<List<DataResponseCustomer>>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "No customers found.",
+                        Data = null
+                    };
+                }
+
+                var responseData = customers.Select(customer => new DataResponseCustomer
+                {
+                    FullName = customer.FullName,
+                    PhoneNumber = customer.PhoneNumber,
+                    Address = customer.Address,
+                    Email = customer.Email,
+                    Id = customer.Id,
+                }).ToList();
+
+                return new ResponseObject<List<DataResponseCustomer>>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Customers retrieved successfully.",
+                    Data = responseData
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<List<DataResponseCustomer>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+
         private string GenerateCodeActive()
         {
             string str = "Print job is completed and the project is fisnished. Code: " + DateTime.Now.ToString();
             return str;
+        }
+
+        public async Task<ResponseObject<DataResponseProject>> UpdateProjectAsync(long projectId, Request_CreateProject request)
+        {
+            try
+            {
+                var project = await _projectRepository.GetByIdAsync(projectId);
+                if (project == null)
+                {
+                    return new ResponseObject<DataResponseProject>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "Project not found.",
+                        Data = null
+                    };
+                }
+
+                project.ProjectName = request.ProjectName;
+                project.RequestDescriptionFromCustomer = request.RequestDescriptionFromCustomer;
+                project.EmployeeId = request.EmployeeId;
+                project.StartDate = request.StartDate;
+                project.ExpectedEndDate = request.ExpectedEndDate;
+                project.CustomerId = request.CustomerId;    
+                project.ProjectStatus = request.ProjectStatus;
+
+                await _projectRepository.UpdateAsync(project);
+
+                var response = new DataResponseProject
+                {
+                    ProjectName = project.ProjectName,
+                    RequestDescriptionFromCustomer = project.RequestDescriptionFromCustomer,
+                    EmployeeId = project.EmployeeId,
+                    StartDate = project.StartDate,
+                    ExpectedEndDate = project.ExpectedEndDate,
+                    CustomerId = project.CustomerId,
+                    ProjectStatus = project.ProjectStatus.ToString()
+                };
+
+                return new ResponseObject<DataResponseProject>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Project is updated successfully.",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponseProject>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ResponseObject<DataResponseProject>> DeleteProjectAsync(long projectId)
+        {
+            try
+            {
+                var project = await _projectRepository.GetByIdAsync(projectId);
+                if (project == null)
+                {
+                    return new ResponseObject<DataResponseProject>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "Project not found.",
+                        Data = null
+                    };
+                }
+
+                await _projectRepository.DeleteAsync(projectId);
+
+                return new ResponseObject<DataResponseProject>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Project is deleted successfully.",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponseProject>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+
         }
     }
 }

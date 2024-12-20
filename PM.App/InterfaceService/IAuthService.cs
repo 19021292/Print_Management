@@ -18,6 +18,11 @@ namespace PM.Application.InterfaceService
         Task<ResponseObject<DataResponseLogin>> Login(Request_Login request);
 
         Task<ResponseObject<List<DataResponseUser>>> GetAllUsersAsync();
+
+        Task<ResponseObject<DataResponseUser>> UpdateUserAsync(long userId, Request_UpdateUser request);
+
+        //Task<ResponseObject<DataResponseUser>> GetUserForUpdateAsync(long userId);
+        Task<ResponseObject<DataResponseUser>> DeleteUserAsync(long userId);
         Task<ResponseObject<DataResponseUser>> GetUserInfoAsync();
         Task<ResponseObject<DataResponseUser>> ChangePassword(long userId, Request_ChangePassword request);
         Task<string> AddRolesToUser(long userId, List<string> roles);

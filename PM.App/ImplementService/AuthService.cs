@@ -22,6 +22,7 @@ using Org.BouncyCastle.Pqc.Crypto.Crystals.Dilithium;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
+using PM.Application.Payloads.ResponseModels.DataTeams;
 
 namespace PM.Application.ImplementService
 {
@@ -31,6 +32,7 @@ namespace PM.Application.ImplementService
         private readonly UserConverter _userConverter;
         private readonly IConfiguration _configuration;
         private readonly IUserRepository _userRepository;
+        private readonly IBaseRepository<Team> _baseTeamRepository;
         private readonly IEmailService _emailService;
         private readonly IBaseRepository<ConfirmEmail> _baseConfirmEmailRepository;
         private readonly IBaseRepository<Permissions> _basePermissionsRepository;
@@ -39,12 +41,13 @@ namespace PM.Application.ImplementService
         private readonly IHttpContextAccessor _contextAccessor;
         public AuthService(IBaseRepository<User> baseUserRepository, UserConverter userConverter, IConfiguration configuration, IUserRepository userRepository, IEmailService emailService, 
             IBaseRepository<ConfirmEmail> baseConfirmEmailRepository, IBaseRepository<Permissions> basePermissionsRepository, IBaseRepository<Role> baseRoleRepository, 
-            IBaseRepository<RefreshToken> baseRefreshTokenRepository, IHttpContextAccessor contextAccessor)
+            IBaseRepository<RefreshToken> baseRefreshTokenRepository, IHttpContextAccessor contextAccessor, IBaseRepository<Team> baseTeamRepository)
         {
             _baseUserRepository = baseUserRepository;
             _userConverter = userConverter;
             _configuration = configuration;
             _userRepository = userRepository;
+            _baseTeamRepository = baseTeamRepository;
             _emailService = emailService;
             _baseConfirmEmailRepository = baseConfirmEmailRepository;
             _basePermissionsRepository = basePermissionsRepository;
@@ -63,7 +66,7 @@ namespace PM.Application.ImplementService
                     return "Invalid cofirmation code.";
                 }
                 var user = await _baseUserRepository.GetAsync(x => x.Id == code.UserId);
-                if(code.ExpiryTime < DateTime.Now)
+                if(code.ExpiryTime < DateTime.Now.AddMinutes(14))
                 {
                     return "The confirmation code has expired.";
                 }
@@ -345,7 +348,7 @@ namespace PM.Application.ImplementService
                     UserId = user.Id,   
                 };
                 confirmEmail = await _baseConfirmEmailRepository.CreateAsync(confirmEmail);
-                var message = new EmailMessage(new string[] {request.Email}, "Receive confirm code: ", $"Confirm code: {confirmEmail.ConfirmCode}");
+                var message = new EmailMessage(new string[] {request.Email}, "User information: ", $"Username: {request.UserName} Password: {request.Password}");
                 var responseMessage = _emailService.SendEmail(message);
                 return new ResponseObject<DataResponseUser>
                 {
@@ -451,7 +454,10 @@ namespace PM.Application.ImplementService
                         UserName = user.UserName,
                         Email = user.Email,
                         PhoneNumber = user.PhoneNumber,
-                        Roles = roles.ToList()
+                        Roles = roles.ToList(),
+                        CreateTime = user.CreateTime,
+                        UpdateTime = user.UpdateTime,
+                        TeamId = user.TeamId,
                     });
                 }
 
@@ -473,7 +479,191 @@ namespace PM.Application.ImplementService
             }
         }
 
+        public async Task<ResponseObject<DataResponseUser>> UpdateUserAsync(long userId, Request_UpdateUser request)
+        {
+            try
+            {
+                var currentUser = _contextAccessor.HttpContext.User;
 
+                if (currentUser == null || !currentUser.Identity.IsAuthenticated)
+                {
+                    return new ResponseObject<DataResponseUser>
+                    {
+                        Status = StatusCodes.Status401Unauthorized,
+                        Message = "User is not authenticated.",
+                        Data = null
+                    };
+                }
+
+                if (!currentUser.IsInRole("Admin"))
+                {
+                    return new ResponseObject<DataResponseUser>
+                    {
+                        Status = StatusCodes.Status403Forbidden,
+                        Message = "Only administrators can update user information.",
+                        Data = null
+                    };
+                }
+
+                // Retrieve the user to update
+                var existingUser = await _baseUserRepository.GetByIdAsync(userId);
+                if (existingUser == null)
+                {
+                    return new ResponseObject<DataResponseUser>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "User not found.",
+                        Data = null
+                    };
+                }
+
+                if(request.DateOfBirth == null)
+                {
+                    request.DateOfBirth = existingUser.DateOfBirth;
+                }
+
+
+                // Update user details based on the request payload
+                existingUser.UserName = request.UserName;
+                existingUser.FullName = request.FullName;
+                existingUser.DateOfBirth = request.DateOfBirth;
+                existingUser.Email = request.Email;
+                existingUser.PhoneNumber = request.PhoneNumber;
+                existingUser.UpdateTime = DateTime.UtcNow;
+                existingUser.Password = existingUser.Password;
+
+
+                await _userRepository.UpdateAsync(existingUser);
+
+                var roles = await _userRepository.GetRolesOfUserAsync(existingUser);
+
+                var responseData = new DataResponseUser
+                {
+                    Id = existingUser.Id,
+                    UserName = existingUser.UserName,
+                    FullName = existingUser.FullName,
+                    Email = existingUser.Email,
+                    PhoneNumber = existingUser.PhoneNumber,
+                    Roles = roles.ToList(),
+                    CreateTime = existingUser.CreateTime,
+                    UpdateTime = existingUser.UpdateTime,
+                    TeamId = existingUser.TeamId
+                };
+
+                return new ResponseObject<DataResponseUser>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "User updated successfully.",
+                    Data = responseData
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponseUser>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        //public async Task<ResponseObject<DataResponseUser>> GetUserForUpdateAsync(long userId)
+        //{
+        //    try
+        //    {
+        //        var user = await _baseUserRepository.GetByIdAsync(userId);
+        //        if (user == null)
+        //        {
+        //            return new ResponseObject<DataResponseUser>
+        //            {
+        //                Status = StatusCodes.Status404NotFound,
+        //                Message = "User not found.",
+        //                Data = null
+        //            };
+        //        }
+
+        //        var userRoles = await _userRepository.GetRolesOfUserAsync(user);
+
+        //        return new ResponseObject<DataResponseUser>
+        //        {
+        //            Status = StatusCodes.Status200OK,
+        //            Message = "User retrieved successfully.",
+        //            Data = new DataResponseUser
+        //            {
+        //                Id = user.Id,
+        //                UserName = user.UserName,
+        //                Email = user.Email,
+        //                FullName = user.FullName,
+        //                PhoneNumber = user.PhoneNumber,
+        //                DateOfBirth = user.DateOfBirth,
+        //                TeamId = user.TeamId,
+        //                Roles = userRoles.ToList(),
+        //                CreateTime = user.CreateTime,
+        //                UpdateTime = user.UpdateTime
+        //            }
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ResponseObject<DataResponseUser>
+        //        {
+        //            Status = StatusCodes.Status500InternalServerError,
+        //            Message = ex.Message,
+        //            Data = null
+        //        };
+        //    }
+        //}
+
+
+        public async Task<ResponseObject<DataResponseUser>> DeleteUserAsync(long userId)
+        {
+            try
+            {
+                var team = await _baseUserRepository.GetByIdAsync(userId);
+                if (team == null)
+                {
+                    return new ResponseObject<DataResponseUser>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "User not found.",
+                        Data = null
+                    };
+                }
+
+                var user = await _userRepository.GetUserById(userId);
+                if (user.TeamId == null)
+                {
+                    user.TeamId = 0;
+                }
+
+                var userTeam = await _baseTeamRepository.GetByIdAsync(user.TeamId.Value);
+                await _userRepository.DeleteAsync(userId);
+
+                if(userTeam != null)
+                {
+                    userTeam.NumberOfMember--;
+                    await _baseTeamRepository.UpdateAsync(userTeam);
+                }
+
+
+                return new ResponseObject<DataResponseUser>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "User is deleted successfully.",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponseUser>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
 
         public async Task<ResponseObject<DataResponseUser>> ChangePassword(long userId, Request_ChangePassword request)
         {

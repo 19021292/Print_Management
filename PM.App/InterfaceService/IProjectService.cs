@@ -15,6 +15,10 @@ namespace PM.Application.InterfaceService
         Task<ResponseObject<DataResponseProject>> CreateProjectAsync(Request_CreateProject request);
 
         Task<ResponseObject<List<DataResponseProject>>> GetAllProjectsAsync();
-        Task<ResponseObject<DataResponseProject>> ConfirmFinishingProjectAsync(long PrintJobId, long ProjectId);
+        Task<ResponseObject<DataResponseProject>> UpdateProjectAsync(long projectId, Request_CreateProject request);
+        Task<ResponseObject<DataResponseProject>> DeleteProjectAsync(long projectId);
+        Task<ResponseObject<DataResponseFinishingProject>> ConfirmFinishingProjectAsync(Request_FinishingProject request);
+
+        Task<ResponseObject<List<DataResponseCustomer>>> GetAllCustomersAsync();
     }
 }

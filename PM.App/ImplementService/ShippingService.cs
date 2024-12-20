@@ -95,7 +95,7 @@ namespace PM.Application.ImplementService
                     return new ResponseObject<DataResponseDelivery>
                     {
                         Status = StatusCodes.Status403Forbidden,
-                        Message = "Only shipping team leaders can choose the shipper.",
+                        Message = "Only shipping team leaders can create delivery.",
                         Data = null
                     };
                 }
@@ -123,6 +123,7 @@ namespace PM.Application.ImplementService
 
                 foreach (var sd in shippingDeliveries)
                 {
+                    
                     if (AreAddressesSimilar(sd.DeliveryAddress, customer.Address))
                     {
                         delivery.DeliverId = sd.DeliverId;
@@ -130,13 +131,12 @@ namespace PM.Application.ImplementService
                     }
                     else
                     {
-                        var differentShipper = shippers.FirstOrDefault(s => s.Id != sd.ProjectId);
-                        delivery.DeliverId = differentShipper.Id;
+                        var differentshipper = shippers.FirstOrDefault(s => s.Id != sd.DeliverId);
+                        delivery.DeliverId = differentshipper.Id;
                         break;
                     }
                 }
 
-               
 
                 await _deliveryRepository.UpdateAsync(delivery);
 
@@ -239,15 +239,15 @@ namespace PM.Application.ImplementService
                 var teamId = user.TeamId.Value;
                 var team = await _teamRepository.GetByIdAsync(3);
 
-                if (team == null || teamId != 3)
-                {
-                    return new ResponseObject<List<DataResponseDelivery>>
-                    {
-                        Status = StatusCodes.Status403Forbidden,
-                        Message = "Only users in the Shipping team can view deliveries.",
-                        Data = null
-                    };
-                }
+                //if (team == null || teamId != 3)
+                //{
+                //    return new ResponseObject<List<DataResponseDelivery>>
+                //    {
+                //        Status = StatusCodes.Status403Forbidden,
+                //        Message = "Only users in the Shipping team can view deliveries.",
+                //        Data = null
+                //    };
+                //}
 
                 var deliveries = await _deliveryRepository.GetAllAsync();
 

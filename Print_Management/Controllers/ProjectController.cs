@@ -59,6 +59,33 @@ namespace Print_Management.Controllers
             return Ok(result.Data);
         }
 
+        [HttpPut("UpdateProject/{id}")]
+        public async Task<IActionResult> UpdateProject(long id, [FromBody] Request_CreateProject request)
+        {
+            try
+            {
+                var response = await _projectService.UpdateProjectAsync(id, request);
+                if (response.Status == StatusCodes.Status400BadRequest)
+                {
+                    return BadRequest(response.Message); // Return specific error message
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+
+        [HttpDelete("DeleteProject/{projectId}")]
+        public async Task<IActionResult> DeleteProjectAsync(long projectId)
+        {
+            var result = await _projectService.DeleteProjectAsync(projectId);
+
+            return StatusCode(result.Status, result);
+        }
+
         [HttpPost("AddDesign")]
         public async Task<IActionResult> AddDesign([FromBody] Request_CreateDesign request)
         {
@@ -151,6 +178,62 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
+        [HttpPut("UpdateDesign/{designId}")]
+        public async Task<IActionResult> UpdateDesign(long designId, [FromBody] Request_CreateDesign request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // Return bad request if model state is invalid
+            }
+
+            try
+            {
+                var response = await _designService.UpdateDesignAsync(designId, request); // Service method to handle design update
+
+                if (response.Status == StatusCodes.Status404NotFound)
+                {
+                    return NotFound(new { response.Message }); // Return not found if the design doesn't exist
+                }
+
+                if (response.Status == StatusCodes.Status200OK)
+                {
+                    return Ok(response.Data); // Return updated design data if success
+                }
+
+                return StatusCode(response.Status, response.Message); // Return other status if needed
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message); // Return internal server error if an exception is caught
+            }
+        }
+
+        [HttpDelete("DeleteDesign/{designId}")]
+        public async Task<IActionResult> DeleteDesign(long designId)
+        {
+            try
+            {
+                var response = await _designService.DeleteDesignAsync(designId); // Service method to delete the design
+
+                if (response.Status == StatusCodes.Status404NotFound)
+                {
+                    return NotFound(new { response.Message }); // Return not found if the design to delete is not found
+                }
+
+                if (response.Status == StatusCodes.Status200OK)
+                {
+                    return Ok(response.Message); // Return success message if design was deleted
+                }
+
+                return StatusCode(response.Status, response.Message); // Return other status if necessary
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message); // Return internal server error if an exception occurs
+            }
+        }
+
+
         [HttpPost("ConfirmDesign-for-printing")]
         public async Task<IActionResult> ConfirmDesignForPrintingAsync([FromBody] Request_CreatePrintJob request)
         {
@@ -167,6 +250,55 @@ namespace Print_Management.Controllers
             }
 
             return StatusCode(response.Status, response.Message);
+        }
+
+        [HttpPut("UpdatePrintJob/{printJobId}")]
+        public async Task<IActionResult> UpdatePrintJobAsync(long printJobId, [FromBody] Request_CreatePrintJob updateRequest)
+        {
+            try
+            {
+                var response = await _printJobService.UpdatePrintJobAsync(printJobId, updateRequest);
+
+                if (response.Status == StatusCodes.Status404NotFound)
+                {
+                    return NotFound(new { message = response.Message });
+                }
+                if (response.Status == StatusCodes.Status500InternalServerError)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { message = response.Message });
+                }
+
+                return Ok(new { message = response.Message, data = response.Data });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("DeletePrintJob/{printJobId}")]
+        public async Task<IActionResult> DeletePrintJobAsync(long printJobId)
+        {
+            try
+            {
+                var response = await _printJobService.DeletePrintJobAsync(printJobId);
+
+                if (response.Status == StatusCodes.Status404NotFound)
+                {
+                    return NotFound(new { message = response.Message });
+                }
+
+                if (response.Status == StatusCodes.Status500InternalServerError)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { message = response.Message });
+                }
+
+                return Ok(new { message = response.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
         }
 
         [HttpPost("CreateResources")]
@@ -261,6 +393,32 @@ namespace Print_Management.Controllers
             return StatusCode(response.Status, response.Message);
         }
 
+        [HttpGet("GetAllResourcePropertyDetails")]
+        public async Task<ActionResult<ResponseObject<List<DataResponseResourcePropertyDetail>>>> GetAllResourcePropertyDetailsAsync()
+        {
+            try
+            {
+                var result = await _resourceManagementService.GetAllResourcePropertyDetailsAsync();
+
+                if (result.Status == StatusCodes.Status404NotFound)
+                {
+                    return NotFound(result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseObject<List<DataResponseResourcePropertyDetail>>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+
+
         //[HttpPost("CreateResource-for-print-job")]
         //[Authorize]
         //public async Task<IActionResult> CreateResourceForPrintJob([FromBody] Request_CreateResourceForPrintJob request)
@@ -306,10 +464,29 @@ namespace Print_Management.Controllers
         }
 
         [HttpPost("ConfirmFinishing-project")]
-        public async Task<IActionResult> ConfirmFinishingProject(long printJobId, long projectId)
+        public async Task<IActionResult> ConfirmFinishingProject([FromBody] Request_FinishingProject request)
         {
-            var result = await _projectService.ConfirmFinishingProjectAsync(printJobId, projectId);
+            var result = await _projectService.ConfirmFinishingProjectAsync(request);
+
             return StatusCode(result.Status, new { result.Message, result.Data });
+        }
+
+        [HttpGet]
+        [Route("all-customers")]
+        public async Task<IActionResult> GetAllCustomersAsync()
+        {
+            var response = await _projectService.GetAllCustomersAsync();
+
+            if (response.Status == StatusCodes.Status404NotFound)
+            {
+                return NotFound(response);
+            }
+            else if (response.Status == StatusCodes.Status500InternalServerError)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+
+            return Ok(response);
         }
     }
 }

@@ -80,6 +80,86 @@ namespace PM.Application.ImplementService
             }
         }
 
+        public async Task<ResponseObject<DataResponsePrintjob>> UpdatePrintJobAsync(long id, Request_CreatePrintJob updateRequest)
+        {
+            try
+            {
+                var printJob = await _printjobRepository.GetByIdAsync(id);
+
+                if (printJob == null)
+                {
+                    return new ResponseObject<DataResponsePrintjob>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "Print job not found.",
+                        Data = null
+                    };
+                }
+
+                // Perform the necessary updates based on the request
+                printJob.DesignId = updateRequest.DesignId;
+                await _printjobRepository.UpdateAsync(printJob);
+
+                var updatedResponse = new DataResponsePrintjob
+                {
+                    Id = printJob.Id,
+                    DesignId = printJob.DesignId,
+                    PrintJobStatus = printJob.PrintJobStatus.ToString()
+                };
+
+                return new ResponseObject<DataResponsePrintjob>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Print job updated successfully.",
+                    Data = updatedResponse
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponsePrintjob>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ResponseObject<DataResponsePrintjob>> DeletePrintJobAsync(long printJobId)
+        {
+            try
+            {
+                var printJob = await _printjobRepository.GetByIdAsync(printJobId);
+                if (printJob == null)
+                {
+                    return new ResponseObject<DataResponsePrintjob>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "Print job not found.",
+                        Data = null
+                    };
+                }
+
+                await _printjobRepository.DeleteAsync(printJobId);
+
+                return new ResponseObject<DataResponsePrintjob>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Print job is deleted successfully.",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<DataResponsePrintjob>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
 
         public async Task<ResponseObject<DataResponsePrintjob>> ConfirmDesignForPrintingAsync(Request_CreatePrintJob request)
         {
@@ -101,7 +181,6 @@ namespace PM.Application.ImplementService
 
                 foreach (var claim in currentUser.Claims)
                 {
-                    Console.WriteLine($"{claim.Type}: {claim.Value}");
                     if (claim.Type == "Id")
                     {
                         userId = claim.Value;
@@ -109,22 +188,18 @@ namespace PM.Application.ImplementService
                     }
                 }
 
+                if (request.DesignId <= 0)
+                {
+                    return new ResponseObject<DataResponsePrintjob>
+                    {
+                        Status = StatusCodes.Status400BadRequest,
+                        Message = "Invalid Design ID.",
+                        Data = null
+                    };
+                }
+
+                Console.WriteLine($"Fetching design with ID: {request.DesignId}");
                 var design = await _designRepository.GetByIdAsync(request.DesignId);
-                var project = await _projectRepository.GetByIdAsync(design.ProjectId);
-
-                var leaderId = Convert.ToInt64(userId);
-                var leader = await _userRepository.GetUserById(leaderId);
-
-                //if (!leaderId.Equals(project.EmployeeId))
-                //{
-                //    return new ResponseObject<DataResponsePrintjob>
-                //    {
-                //        Status = StatusCodes.Status403Forbidden,
-                //        Message = "Only project leaders can confirm designs to printjob.",
-                //        Data = null
-                //    };
-                //}
-
                 if (design == null)
                 {
                     return new ResponseObject<DataResponsePrintjob>
@@ -135,6 +210,7 @@ namespace PM.Application.ImplementService
                     };
                 }
 
+                var project = await _projectRepository.GetByIdAsync(design.ProjectId);
                 if (project == null)
                 {
                     return new ResponseObject<DataResponsePrintjob>
@@ -144,6 +220,9 @@ namespace PM.Application.ImplementService
                         Data = null
                     };
                 }
+
+                var leaderId = Convert.ToInt64(userId);
+                var leader = await _userRepository.GetUserById(leaderId);
 
                 if (design.DesignStatus != DesignStatus.Approved)
                 {
@@ -186,6 +265,7 @@ namespace PM.Application.ImplementService
                 };
             }
         }
+
 
 
     }

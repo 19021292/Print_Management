@@ -292,7 +292,6 @@ namespace PM.Application.ImplementService
                 {
                     PropertyId = request.PropertyId,
                     PropertyDetailName = request.PropertyDetailName,
-                    Image = request.Image,
                     Price = request.Price,
                     Quantity = request.Quantity,
                 };
@@ -303,7 +302,6 @@ namespace PM.Application.ImplementService
                 {
                     PropertyId = resourcePropertyDetail.PropertyId,
                     PropertyDetailName = resourcePropertyDetail.PropertyDetailName,
-                    Image = resourcePropertyDetail.Image,
                     Price = resourcePropertyDetail.Price,
                     Quantity = resourcePropertyDetail.Quantity,
                 };
@@ -318,6 +316,49 @@ namespace PM.Application.ImplementService
             catch (Exception ex)
             {
                 return new ResponseObject<DataResponseResourcePropertyDetail>
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ResponseObject<List<DataResponseResourcePropertyDetail>>> GetAllResourcePropertyDetailsAsync()
+        {
+            try
+            {
+                var resourcePropertyDetails = await _resourcePropertyDetailRepository.GetAllAsync();
+
+                if (resourcePropertyDetails == null || !resourcePropertyDetails.Any())
+                {
+                    return new ResponseObject<List<DataResponseResourcePropertyDetail>>
+                    {
+                        Status = StatusCodes.Status404NotFound,
+                        Message = "No resource property details found.",
+                        Data = null
+                    };
+                }
+
+                var response = resourcePropertyDetails.Select(rpd => new DataResponseResourcePropertyDetail
+                {
+                    PropertyId = rpd.PropertyId,
+                    PropertyDetailName = rpd.PropertyDetailName,
+                    Price = rpd.Price,
+                    Quantity = rpd.Quantity,
+                    Id = rpd.Id,
+                }).ToList();
+
+                return new ResponseObject<List<DataResponseResourcePropertyDetail>>
+                {
+                    Status = StatusCodes.Status200OK,
+                    Message = "Resource property details retrieved successfully.",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseObject<List<DataResponseResourcePropertyDetail>>
                 {
                     Status = StatusCodes.Status500InternalServerError,
                     Message = ex.Message,

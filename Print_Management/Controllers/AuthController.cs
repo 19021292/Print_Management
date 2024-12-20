@@ -60,6 +60,39 @@ namespace Print_Management.Controllers
             return Ok(result.Data);
         }
 
+
+        [HttpPut("update-user/{userId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+        public async Task<IActionResult> UpdateUser(long userId, [FromBody] Request_UpdateUser request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _authService.UpdateUserAsync(userId, request);
+
+            if (result.Status != StatusCodes.Status200OK)
+            {
+                return StatusCode(result.Status, result.Message);
+            }
+            return Ok(result.Data);
+        }
+
+        [HttpDelete("delete-user/{userId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(long userId)
+        {
+            var result = await _authService.DeleteUserAsync(userId);
+
+            if (result.Status != StatusCodes.Status200OK)
+            {
+                return StatusCode(result.Status, result.Message);
+            }
+            return Ok(new { message = result.Message });
+        }
+
+
         [HttpPut]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> ChangePassword([FromBody] Request_ChangePassword request)
@@ -75,9 +108,19 @@ namespace Print_Management.Controllers
 
         [HttpPost("{userId}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> AddRolesToUser([FromRoute] long userId,[FromBody] List<string> roles)
+        public async Task<IActionResult> AddRolesToUser([FromRoute] long userId, [FromBody] List<string> roles)
         {
-            return Ok(await _authService.AddRolesToUser(userId, roles));
+            if (roles == null || !roles.Any())
+            {
+                return BadRequest("Roles must be provided.");
+            }
+
+            var result = await _authService.AddRolesToUser(userId, roles);
+            if (result == "Add roles successfully.")
+            {
+                return Ok(new { message = result });
+            }
+            return BadRequest(new { error = result });
         }
     }
 }
