@@ -18,15 +18,18 @@ namespace Print_Management.Controllers
         private readonly IDesignService _designService;
         private readonly IPrintJobService _printJobService;
         private readonly IResourceManagementService _resourceManagementService;
-
+        private readonly IProductService _productService; 
+        private readonly IOrderService _orderService;
 
         public ProjectController(IProjectService projectService, IDesignService designService, IPrintJobService printJobService
-            , IResourceManagementService resourceManagementService)
+            , IResourceManagementService resourceManagementService, IProductService productService, IOrderService orderService)
         {
             _projectService = projectService;
             _designService = designService;
             _printJobService = printJobService;
             _resourceManagementService = resourceManagementService;
+            _productService = productService; 
+            _orderService = orderService;
 
         }
 
@@ -232,6 +235,50 @@ namespace Print_Management.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message); // Return internal server error if an exception occurs
             }
         }
+
+        // Method to test Create Product
+        [HttpPost("CreateProduct")]
+        public async Task<IActionResult> CreateProduct([FromBody] Request_CreateProduct request)
+        {
+            var response = await _productService.CreateProductAsync(request);
+            if (response.Status == StatusCodes.Status201Created)
+            {
+                return CreatedAtAction(nameof(GetProductById), new { id = response.Data.Id }, response);
+            }
+            return StatusCode(response.Status, response);
+        }
+
+        // Method to test Get All Products
+        [HttpGet("getAllProduct")]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            var response = await _productService.GetAllProductsAsync();
+            return StatusCode(response.Status, response);
+        }
+
+        // Method to test Get Product by ID
+        [HttpGet("getProductBy/{id}")]
+        public async Task<IActionResult> GetProductById(long id)
+        {
+            var response = await _productService.GetProductByIdAsync(id);
+            return StatusCode(response.Status, response);
+        }
+
+        [HttpPost("createOrder")]
+        public async Task<IActionResult> CreateOrder([FromBody] Request_CreateOrder request)
+        {
+            var response = await _orderService.CreateOrderAsync(request);
+            return StatusCode(response.Status, response);
+        }
+
+        [HttpGet("getAllOrder")]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            var response = await _orderService.GetAllOrdersAsync();
+            return StatusCode(response.Status, response);
+        }
+
+
 
 
         [HttpPost("ConfirmDesign-for-printing")]

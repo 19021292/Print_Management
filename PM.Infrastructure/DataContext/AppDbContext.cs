@@ -28,6 +28,9 @@ namespace PM.Infrastructure.DataContext
 
         public virtual DbSet<Delivery> Deliveries { get; set; }
         public virtual DbSet<ShippingMethod> ShippingMethods { get; set; }
+
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
         public async Task<int> CommitChangeAsync()
         {
             return await SaveChangesAsync();

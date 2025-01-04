@@ -44,6 +44,14 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IBaseRepository<Design>, BaseRepository<Design>>();
 builder.Services.AddScoped<IDesignService, DesignService>();
 
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
+// Register the repositories for Product and Order
+builder.Services.AddScoped<IBaseRepository<Product>, BaseRepository<Product>>();
+builder.Services.AddScoped<IBaseRepository<Order>, BaseRepository<Order>>();
+
+
 builder.Services.AddScoped<IBaseRepository<Notification>, BaseRepository<Notification>>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
@@ -70,6 +78,7 @@ builder.Services.AddScoped<IBaseRepository<Delivery>, BaseRepository<Delivery>>(
 builder.Services.AddScoped<IBaseRepository<ShippingMethod>, BaseRepository<ShippingMethod>>();
 
 builder.Services.AddScoped<IShippingService, ShippingService>();
+
 
 var emailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton(emailConfig);
