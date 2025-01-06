@@ -135,17 +135,17 @@ namespace PM.Application.ImplementService
         {
             try
             {
-                var currentUser = _contextAccessor.HttpContext.User;
+                //var currentUser = _contextAccessor.HttpContext.User;
 
-                if (!currentUser.Identity.IsAuthenticated)
-                {
-                    return new ResponseObject<List<DataResponseDesign>>
-                    {
-                        Status = StatusCodes.Status401Unauthorized,
-                        Message = "Unauthorized user.",
-                        Data = null
-                    };
-                }
+                //if (!currentUser.Identity.IsAuthenticated)
+                //{
+                //    return new ResponseObject<List<DataResponseDesign>>
+                //    {
+                //        Status = StatusCodes.Status401Unauthorized,
+                //        Message = "Unauthorized user.",
+                //        Data = null
+                //    };
+                //}
 
                 var designs = await _designRepository.GetAllAsync();
 

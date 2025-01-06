@@ -112,10 +112,10 @@ namespace Print_Management.Controllers
         {
             var response = await _designService.GetAllDesignsForAllProjectsAsync();
 
-            if (response.Status == StatusCodes.Status401Unauthorized)
-            {
-                return Unauthorized(new { response.Message });
-            }
+            //if (response.Status == StatusCodes.Status401Unauthorized)
+            //{
+            //    return Unauthorized(new { response.Message });
+            //}
 
             if (response.Status == StatusCodes.Status404NotFound)
             {
