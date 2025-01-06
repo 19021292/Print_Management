@@ -37,7 +37,7 @@
     <a-modal
       v-model:visible="isModalVisible"
       title="Thêm Thiết kế"
-      @ok="handleOk"
+      @ok="submitDesign"
       @cancel="handleCancel"
     >
       <a-form

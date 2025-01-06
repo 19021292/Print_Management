@@ -112,6 +112,16 @@ export default {
     projectManagementItems() {
       return [
         { key: "9", label: "Quản lý dự án", route: "/project-management" },
+        {
+          key: "15",
+          label: "Quản lý sản phẩm",
+          route: "/product-management",
+        },
+        {
+          key: "16",
+          label: "Quản lý đơn hàng",
+          route: "/order-management",
+        },
         { key: "11", label: "Quản lý thiết kế", route: "/design-management" },
         { key: "10", label: "Quản lý in", route: "/print-management" },
         {
